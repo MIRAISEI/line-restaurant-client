@@ -30,7 +30,7 @@ export default function PayPayCheckoutModal({
   // QR endpoint (string | null)
   const qrEndpoint = orderId
     ? process.env.NEXT_PUBLIC_PAYPAY_QR_ENDPOINT ||
-    `${process.env.NEXT_PUBLIC_API_URL || "https://sukiyaapi.vercel.app"}/api/paypay/qr/${orderId}`
+    `${process.env.NEXT_PUBLIC_API_URL}/api/paypay/qr/${orderId}`
     : null;
 
   useEffect(() => {

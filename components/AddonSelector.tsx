@@ -49,7 +49,7 @@ export default function AddonSelector({ parentItemId, onClose }: AddonSelectorPr
     const fetchAddons = async () => {
       setLoading(true);
       try {
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "https://sukiyaapi.vercel.app";
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
         // Pass parentItemId as query parameter to filter addons
         const url = `${apiBaseUrl}/api/menu/addons${parentItemId ? `?parentItemId=${parentItemId}` : ''}`;
         const response = await fetch(url);

@@ -10,7 +10,7 @@ function getApiBaseUrl(): string {
   }
 
   // Default to production API URL
-  return 'https://sukiyaapi.vercel.app';
+  return "";
 }
 
 async function getMenuItems(locale: string): Promise<IMenuItem[]> {
