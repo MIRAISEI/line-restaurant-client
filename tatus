@@ -1,0 +1,42 @@
+[33m2de06d0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmerge/admin-dashboard-yo-sukiya[m[33m, [m[1;31morigin/feature/admin-dashboard[m[33m, [m[1;32mfeature/admin-dashboard[m[33m)[m fix: Add trailing newline to AddUserModal.tsx
+[33m995fa07[m feat: Add Add User button and integrate AddUserModal in UserTable
+[33ma677816[m feat: Add createUser API function and simplify getUsers to use backend only
+[33mcd59568[m feat: Add AddUserModal component for creating new users
+[33m1a8ed57[m fix: Update status change handler to use order _id for comparison
+[33m5c0e508[m fix: Use order _id instead of orderId for status updates
+[33m21a0c2f[m fix: Handle both id and _id fields in MenuTable for update and delete operations
+[33m027de0d[m fix: Handle both id and _id fields in EditFoodModal to prevent invalid ID format error
+[33mc140296[m fix: Add fallback key prop for MenuTable rows to prevent React warning
+[33me3105af[m fix: Improve error handling to display actual backend error messages
+[33m3f1d9ec[m feat: Add Users link to admin navigation
+[33m06b2607[m feat: Add user management feature with UserTable component
+[33mee65535[m feat: Improve EditFoodModal error handling and form state management
+[33mde91d43[m feat: Replace mock data with MongoDB API calls in admin-api.ts
+[33m71ab5f7[m feat: connect frontend to backend API for menu operations
+[33m9bcdace[m style: update green color to #31a354
+[33m0591919[m feat: add date picker filter to Orders page
+[33m454df21[m style: add custom styling for react-datepicker component
+[33m559a59f[m chore: add react-datepicker dependency
+[33m9dcbc68[m feat: update menu API with delete functionality and additional menu items
+[33m72c1ea6[m feat: update menu page with modern header styling
+[33mc55b089[m feat: restructure menu table with filter bar and modern styling
+[33m13a9712[m feat: add modal for editing food items
+[33m2e648a5[m feat: add modal for creating new food items
+[33m75076c5[m feat: add menu filter bar with search, category, and status filters
+[33mbd17fc9[m feat: update orders page with modern header styling
+[33m365ce1a[m feat: enhance status select with modern styling and touch-friendly design
+[33m0b2ac43[m feat: update status badge with modern styling and borders
+[33m778f730[m feat: enhance order row with formatted date/time and modern styling
+[33me3adbe6[m feat: update order table with modern styling and improved loading states
+[33mb2282bd[m feat: modernize filter bar with order by time functionality
+[33ma8f150f[m feat: modernize admin dashboard with enhanced UI and touch screen support
+[33m079236f[m feat: enhance admin navigation with larger touch targets and modern styling
+[33md8c5f17[m feat: update admin layout with gradient background and touch-friendly spacing
+[33m1e73ace[m feat: add custom CSS animations for modern dashboard UI
+[33m8fb48ef[m feat: add admin menu management page
+[33mca57665[m feat: add admin orders page
+[33m4360088[m feat: add admin dashboard page with stats and recent orders
+[33mc219969[m feat: add admin layout and navigation component
+[33m5223fbf[m feat: add admin dashboard components (FilterBar, MenuTable, OrderTable, StatusBadge, StatusSelect, OrderRow)
+[33m0335688[m feat: add admin API utilities with types and mock data
+[33m07d7921[m feat: add image remote patterns configuration

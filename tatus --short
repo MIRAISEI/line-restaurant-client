@@ -1,0 +1,33 @@
+warning: in the working copy of 'app/(admin)/admin/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/globals.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'components/admin/AddFoodModal.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'components/admin/EditFoodModal.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'components/admin/MenuTable.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'components/admin/OrderTable.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'components/admin/UserTable.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/admin-api.ts', LF will be replaced by CRLF the next time Git touches it
+app/(admin)/admin/page.tsx
+app/(admin)/admin/profile/page.tsx
+app/api/auth/login/route.ts
+app/api/auth/set-password/route.ts
+app/api/auth/verify/route.ts
+app/api/menu/[id]/route.ts
+app/api/menu/route.ts
+app/api/orders/[id]/status/route.ts
+app/api/orders/route.ts
+app/api/route.ts
+app/api/users/[id]/route.ts
+app/api/users/route.ts
+app/api/users/userId/[userId]/route.ts
+components/MenuItemCard.tsx
+components/admin/AddFoodModal.tsx
+components/admin/AddUserModal.tsx
+components/admin/EditFoodModal.tsx
+components/admin/MenuTable.tsx
+components/admin/OrderRow.tsx
+components/admin/OrderTable.tsx
+components/admin/UserTable.tsx
+lib/admin-api.ts
+lib/auth-context.tsx
+lib/auth.ts
+testredu.ts

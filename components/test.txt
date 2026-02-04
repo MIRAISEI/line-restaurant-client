@@ -1,0 +1,108 @@
+import Image from "next/image";
+import { useState } from 'react'; // 1. Import useState
+import { Button } from "./ui/button";
+
+// Placeholder for the Modal/Popup component (define this separately)
+const MenuItemDetailModal = ({ isOpen, onClose, item }) => {
+    if (!isOpen) return null;
+
+    return (
+        // 2. Modal Structure: Fixed position, full screen overlay
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm" onClick={onClose}>
+            
+            {/* Modal Content: Stop propagation to prevent clicking the overlay from closing it immediately */}
+            <div 
+                className="bg-white p-6 rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()} 
+            >
+                <div className="flex justify-between items-start mb-4">
+                    <h2 className="text-2xl font-bold text-gray-800">{item.name} Details</h2>
+                    <Button onClick={onClose} className="p-2 bg-transparent text-gray-500 hover:text-gray-900">
+                        &times; {/* Close button */}
+                    </Button>
+                </div>
+
+                {/* --- Content Area for Details & Images --- */}
+                
+                {/* Image Section (Example: Displaying a larger main image) */}
+                <div className="relative w-full aspect-video mb-4 rounded-md overflow-hidden">
+                    <Image
+                        src={item.image}
+                        alt={item.name}
+                        fill
+                        style={{ objectFit: "cover" }}
+                    />
+                </div>
+
+                {/* Details */}
+                <p className="text-gray-600 mb-4">{item.description || "Detailed description of the dish goes here..."}</p>
+                
+                {/* Price and Action */}
+                <div className="flex justify-between items-center mt-4 border-t pt-4">
+                    <div className="text-xl font-semibold text-green-600">Price: ${item.price}</div>
+                    <Button className="bg-orange-500 hover:bg-orange-600">Add to Cart</Button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+// Main Card Component
+const MenuItemCard = ({ item }) => {
+    // 3. State to manage the modal visibility
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
+    
+    // Example data structure (you should pass this as a prop later)
+    const mockItem = { 
+        name: "Kaiseki Ryori", 
+        price: 125, 
+        image: "/kottu.jpg",
+        description: "A meticulously prepared multi-course Japanese dinner. Focuses on seasonal ingredients and delicate presentation."
+    };
+
+    return(
+        <>
+            {/* 4. Make the entire card clickable to open the modal */}
+            <div 
+                className="flex flex-col relative gap-2 w-[100%] h-[220px] md:h-[285px] bg-primary shadow-[4px_5px_13px_#695f5f] mb-4 rounded-tr-[42px] overflow-hidden px-2 cursor-pointer"
+                onClick={openModal} // Open modal on card click
+            >
+                
+                {/* Existing Card Content */}
+                <div className="relative w-full h-[105px] md:h-[175px]">
+                    <Image 
+                    src={mockItem.image} 
+                    alt="" 
+                    fill style={{objectFit:"cover"}}
+                    />
+                </div>
+                
+                <div className="item-intro text-white pb-12"> 
+                    <h3 className="font-bold">{mockItem.name}</h3>
+                    <div>Price: <span>{mockItem.price}</span></div>
+                </div>
+                
+                {/* Button (optional: can open modal or add to cart directly) 
+                   We'll keep it simple and let the card click open the modal,
+                   but we need to stop event propagation on the button.
+                */}
+                <div className="flex absolute bottom-2 justify-center h-10 inset-x-2" onClick={(e) => e.stopPropagation()}>
+                    <Button>Quick Order</Button>
+                </div>
+            </div>
+            
+            {/* 5. The Modal/Popup Component */}
+            <MenuItemDetailModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                item={mockItem}
+            />
+        </>
+    )
+};
+
+export default MenuItemCard;
