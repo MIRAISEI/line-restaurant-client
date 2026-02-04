@@ -71,6 +71,9 @@ export default function AdminNavigation() {
               <NavLink href="/admin/menu" pathname={pathname}>
                 {t('menu')}
               </NavLink>
+              <NavLink href="/admin/categories" pathname={pathname}>
+                {t('categories')}
+              </NavLink>
               {(user?.role === "admin" || user?.role === "manager") && (
                 <NavLink href="/admin/users" pathname={pathname}>
                   {t('users')}
@@ -156,6 +159,9 @@ export default function AdminNavigation() {
           </MobileNavLink>
           <MobileNavLink href="/admin/menu" pathname={pathname}>
             {t('menu')}
+          </MobileNavLink>
+          <MobileNavLink href="/admin/categories" pathname={pathname}>
+            {t('categories')}
           </MobileNavLink>
           {(user?.role === "admin" || user?.role === "manager") && (
             <MobileNavLink href="/admin/users" pathname={pathname}>

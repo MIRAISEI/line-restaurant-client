@@ -157,6 +157,15 @@ export interface User {
   lineUserId?: string;
 }
 
+export interface Category {
+  _id: string;
+  name: string;
+  imageUrl: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AuthUser {
   _id: string;
   id: string;
@@ -661,6 +670,105 @@ export async function deleteUser(id: string): Promise<void> {
       throw error;
     }
     throw new Error('Failed to delete user');
+  }
+}
+
+// Category API functions
+export async function getCategories(): Promise<Category[]> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/categories`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to fetch categories');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to fetch categories');
+  }
+}
+
+export async function createCategory(category: Omit<Category, "_id" | "createdAt" | "updatedAt">): Promise<Category> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/categories`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(category),
+    });
+
+    if (!response.ok) {
+      let errorMessage = 'Failed to create category';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
+
+        if (errorData.missingFields && Array.isArray(errorData.missingFields)) {
+          errorMessage = `${errorMessage} (Missing: ${errorData.missingFields.join(', ')})`;
+        }
+      } catch {
+        await handleApiError(response, errorMessage);
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to create category');
+  }
+}
+
+export async function updateCategory(id: string, updates: Partial<Category>): Promise<Category> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/categories/${id}`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(updates),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to update category');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to update category');
+  }
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/categories/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to delete category');
+    }
+
+    try {
+      await response.json();
+    } catch {
+      // Response might be empty, which is fine
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to delete category');
   }
 }
 
