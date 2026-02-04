@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
  * LINE is configured to redirect to /auth/line/callback
  * This route handles the callback and processes the LINE login
  */
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://sukiyaapi.vercel.app";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Ensure this route is treated as dynamic
 export const dynamic = 'force-dynamic';

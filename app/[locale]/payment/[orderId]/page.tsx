@@ -40,7 +40,7 @@ function PaymentContent() {
   const fetchOrder = useCallback(async () => {
     try {
       setLoading(true);
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "https://sukiyaapi.vercel.app";
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
       const response = await fetch(`${apiBaseUrl}/api/orders/${orderId}`);
 
       if (!response.ok) {
@@ -68,7 +68,7 @@ function PaymentContent() {
     setError(null);
 
     try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "https://sukiyaapi.vercel.app";
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
       const response = await fetch(`${apiBaseUrl}/api/orders/${order._id}/payment`, {
         method: "PATCH",
         headers: {

@@ -124,7 +124,7 @@ function CheckoutPage() {
       }
 
       // Create order - use separate backend API
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "https://sukiyaapi.vercel.app";
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
       const response = await fetch(`${apiBaseUrl}/api/orders`, {
         method: "POST",
         headers: {
@@ -202,7 +202,7 @@ function CheckoutPage() {
       });
 
       const apiPaymentMethod = timing === "now" ? "paypay_now" : "paypay_after";
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "https://sukiyaapi.vercel.app";
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
       const response = await fetch(`${apiBaseUrl}/api/orders`, {
         method: "POST",
