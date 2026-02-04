@@ -1,5 +1,5 @@
-import MenuItemCard from "@/components/MenuItemCard";
-import { IMenuItem } from "@/types/menu-types";
+import MenuItemsFilter from "@/components/MenuItemsFilter";
+import { MenuItemsResponse } from "@/types/menu-types";
 import { getTranslations, getLocale } from 'next-intl/server';
 
 // Get API base URL - use sukiya-api backend
@@ -13,7 +13,7 @@ function getApiBaseUrl(): string {
   return "";
 }
 
-async function getMenuItems(locale: string): Promise<IMenuItem[]> {
+async function getMenuItems(locale: string): Promise<MenuItemsResponse> {
   try {
     // Fetch from sukiya-api backend
     const apiBaseUrl = getApiBaseUrl();
@@ -28,7 +28,7 @@ async function getMenuItems(locale: string): Promise<IMenuItem[]> {
 
     if (!response.ok) {
       console.error('Failed to fetch menu items:', response.status, response.statusText);
-      return [];
+      return { items: [], categories: []};
     }
 
     const data = await response.json();
@@ -45,8 +45,18 @@ async function getMenuItems(locale: string): Promise<IMenuItem[]> {
       subcategory?: string | null;
       isActive?: boolean;
     }
-    return data
-      .filter((item: ApiMenuItem) => item.isActive !== false) // Only show active items
+    const activeItems:ApiMenuItem[] = data.filter((item: ApiMenuItem) => item.isActive !== false);
+    const categories = Array.from(
+      new Set(
+        //activeItems.map((item: ApiMenuItem) => item.category)
+          activeItems
+        .map((item): string | undefined => item.category)
+        .filter(
+          (category): category is string => typeof category === 'string'
+        )
+      )
+    );
+    const items = activeItems // Only show active items
       .map((item: ApiMenuItem) => ({
         id: item.id || item._id || '',
         title: locale === 'ja' ? (item.nameJp || item.nameEn || '無題') : (item.nameEn || item.nameJp || 'Untitled'),
@@ -57,29 +67,30 @@ async function getMenuItems(locale: string): Promise<IMenuItem[]> {
         category: item.category || '',
         subcategory: item.subcategory || null,
       }));
+      return {
+        items,
+        categories};
   } catch (error) {
     console.error('Error fetching menu items from API:', error);
-    return [];
+    return { items: [], categories: []};
   }
 }
 
 export default async function Home() {
   const locale = await getLocale();
   const t = await getTranslations('Home');
-  const menuItems = await getMenuItems(locale);
+  const {items, categories} = await getMenuItems(locale);
 
   return (
     <main className="flex min-h-screen bg-background transition-colors duration-300">
       <div className="inner-wrapper flex-col mt-[100px]">
         <h1 className="text-3xl font-bold">{t('hello')}</h1>
         <p className="text-muted-foreground">{t('welcome')}</p>
-
-        {menuItems.length > 0 ? (
-          <div className="grid grid-cols-2 gap-2 w-full md:grid-cols-3 lg:grid-cols-4 mt-8 md:gap-4">
-            {menuItems.map((item) => (
-              <MenuItemCard key={item.id} item={item} />
-            ))}
-          </div>
+       
+        {items.length > 0 ? (
+          
+             <MenuItemsFilter items={items} categories={categories}/>
+          
         ) : (
           <div className="mt-8 text-center text-muted-foreground">
             <p>{t('noItems')}</p>
