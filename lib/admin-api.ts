@@ -160,6 +160,8 @@ export interface User {
 export interface Category {
   _id: string;
   name: string;
+  nameEn: string;
+  nameJp: string;
   imageUrl: string;
   isActive: boolean;
   createdAt: string;

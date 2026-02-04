@@ -1,4 +1,16 @@
 {
+    "Categories": {
+        "Alcohol & Beverages": "Alcohol & Beverages",
+        "Sushi": "Sushi",
+        "Ramen": "Ramen",
+        "Gyudon": "Gyudon",
+        "Desserts": "Desserts",
+        "Sides": "Sides",
+        "Burgers": "Burgers",
+        "Set meals": "Set meals",
+        "Gyumeshi": "Gyumeshi",
+        "CURRY": "Curry"
+    },
     "Header": {
         "title": "Sukiya Restaurant",
         "cart": "Cart",

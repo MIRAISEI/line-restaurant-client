@@ -9,35 +9,39 @@ function getApiBaseUrl(): string {
   return "";
 }
 
+const API_BASE_URL = getApiBaseUrl(); // Define API_BASE_URL here
+
 interface Category {
   id: string;
   name: string;
+  nameEn: string;
+  nameJp: string;
   imageUrl?: string;
   isActive?: boolean;
 }
 
 async function getCategories(): Promise<Category[]> {
   try {
-    const apiBaseUrl = getApiBaseUrl();
-    const response = await fetch(`${apiBaseUrl}/api/categories`, {
+    const response = await fetch(`${API_BASE_URL}/api/categories`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      cache: 'no-store',
+      next: { revalidate: 0 },
     });
 
     if (!response.ok) {
-      console.error('Failed to fetch categories:', response.status);
-      return [];
+      throw new Error('Failed to fetch categories');
     }
 
     const data = await response.json();
     return data
       .filter((cat: Category) => cat.isActive !== false)
       .map((cat: Category) => ({
-        id: cat.name, // We use name as ID for filtering in menu API
+        id: cat.nameEn || cat.name, // We use nameEn as ID for filtering in menu API
         name: cat.name,
+        nameEn: cat.nameEn || cat.name || '',
+        nameJp: cat.nameJp || cat.name || '',
         imageUrl: cat.imageUrl,
       }));
   } catch (error) {
