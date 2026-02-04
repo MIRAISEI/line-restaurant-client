@@ -1,7 +1,18 @@
 {
     "Header": {
         "title": "Sukiya Restaurant",
-        "cart": "Cart"
+        "cart": "Cart",
+        "orderHistory": "History"
+    },
+    "History": {
+        "title": "Order History",
+        "noOrders": "No orders found",
+        "orderId": "Order ID",
+        "date": "Date",
+        "items": "items",
+        "total": "Total",
+        "status": "Status",
+        "viewDetails": "View Details"
     },
     "Home": {
         "hello": "Hello!",

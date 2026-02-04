@@ -4,6 +4,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import Image from "next/image";
 import LineIdMessage from "@/components/LineIdMessage";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/lib/auth-context";
 import { useTranslations, useLocale } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/routing';
 import { Button } from "./ui/button";
@@ -13,6 +14,7 @@ const Header = () => {
     const locale = useLocale();
     const pathname = usePathname();
     const { items } = useCart();
+    const { isAuthenticated } = useAuth();
     const router = useRouter();
     const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -39,6 +41,27 @@ const Header = () => {
                         >
                             {locale === 'en' ? '日本語' : 'EN'}
                         </Button>
+
+                        {/* Order History Button (only for authenticated users) */}
+                        {isAuthenticated && (
+                            <Button
+                                onClick={() => router.push("/history")}
+                                className="bg-transparent hover:bg-primary/80 border-2 border-[#ffdf93] text-[#ffdf93] px-3 py-1 font-bold flex items-center gap-2"
+                                title={t('orderHistory')}
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="w-6 h-6"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                                </svg>
+                                <span className="hidden md:inline">{t('orderHistory')}</span>
+                            </Button>
+                        )}
 
                         {/* Cart Button */}
                         <Button
