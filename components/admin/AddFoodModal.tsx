@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
-import { createMenuItem, type MenuItem } from "@/lib/admin-api";
+import { createMenuItem, getCategories, type MenuItem, type Category } from "@/lib/admin-api";
 
 interface AddFoodModalProps {
   isOpen: boolean;
@@ -31,18 +31,37 @@ export default function AddFoodModal({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categorySearch, setCategorySearch] = useState("");
 
-  // Get unique categories from existing menu items
-  const existingCategories = useMemo(() => {
-    const categories = Array.from(
-      new Set(menuItems.map((item) => item.category).filter(Boolean))
-    ).sort();
-    // Add default categories if no menu items exist
-    if (categories.length === 0) {
-      return ["Main Course", "Appetizer", "Dessert", "Drink", "Side Dish"];
+  // Fetch categories from API
+  useEffect(() => {
+    if (isOpen) {
+      fetchCategories();
     }
-    return categories;
-  }, [menuItems]);
+  }, [isOpen]);
+
+  const fetchCategories = async () => {
+    try {
+      const data = await getCategories();
+      // Only show active categories
+      setCategories(data.filter(cat => cat.isActive));
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+      // Fallback to default categories if fetch fails
+      setCategories([]);
+    }
+  };
+
+  // Filter categories based on search
+  const filteredCategories = useMemo(() => {
+    if (!categorySearch) {
+      return categories;
+    }
+    return categories.filter(cat =>
+      cat.name.toLowerCase().includes(categorySearch.toLowerCase())
+    );
+  }, [categories, categorySearch]);
 
   // Get all addon items for selection
   const addonItems = useMemo(() => {
@@ -241,42 +260,103 @@ export default function AddFoodModal({
               <div>
                 <label className="block text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">
                   {t('category')} <span className="text-red-500">*</span>
-                  <span className="text-gray-400 text-xs font-normal ml-2">({t('selectCategory')})</span>
                 </label>
-                <input
-                  type="text"
-                  list="category-list"
-                  value={formData.category}
-                  onChange={(e) =>
-                    setFormData({ ...formData, category: e.target.value })
-                  }
-                  required
-                  className="w-full rounded-xl border-2 border-gray-200 bg-white/80 backdrop-blur-sm px-4 py-3 md:py-3.5 text-base font-medium text-gray-900 shadow-sm focus:border-[#31a354] focus:ring-2 focus:ring-[#31a354]/20 focus:outline-none transition-all duration-200 min-h-[48px] touch-manipulation hover:border-gray-300"
-                  placeholder={t('typeOrSelectCategory')}
-                  autoComplete="off"
-                />
-                <datalist id="category-list">
-                  {existingCategories.map((category) => (
-                    <option key={category} value={category} />
-                  ))}
-                </datalist>
-                {existingCategories.length > 0 && (
+                <div className="relative">
+                  {/* Searchable select trigger */}
+                  <button
+                    type="button"
+                    onClick={() => setCategorySearch(categorySearch ? "" : " ")}
+                    className="w-full rounded-xl border-2 border-gray-200 bg-white/80 backdrop-blur-sm px-4 py-3 md:py-3.5 text-base font-medium text-gray-900 shadow-sm focus:border-[#31a354] focus:ring-2 focus:ring-[#31a354]/20 focus:outline-none transition-all duration-200 min-h-[48px] touch-manipulation hover:border-gray-300 text-left flex items-center justify-between"
+                  >
+                    <span className={formData.category ? "text-gray-900" : "text-gray-400"}>
+                      {formData.category || t('typeOrSelectCategory')}
+                    </span>
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {/* Category dropdown */}
+                  {categorySearch && (
+                    <>
+                      {/* Overlay to close dropdown */}
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setCategorySearch("")}
+                      />
+                      <div className="absolute z-20 w-full mt-1 bg-white border-2 border-gray-200 rounded-xl shadow-lg max-h-64 overflow-hidden flex flex-col">
+                        {/* Search input inside dropdown */}
+                        <div className="p-2 border-b border-gray-200">
+                          <input
+                            type="text"
+                            value={categorySearch.trim()}
+                            onChange={(e) => setCategorySearch(e.target.value)}
+                            placeholder={t('search')}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#31a354]/20"
+                            autoFocus
+                          />
+                        </div>
+                        {/* Category list */}
+                        <div className="overflow-y-auto">
+                          {filteredCategories.length > 0 ? (
+                            filteredCategories.map((category) => (
+                              <button
+                                key={category._id}
+                                type="button"
+                                onClick={() => {
+                                  setFormData({ ...formData, category: category.name });
+                                  setCategorySearch("");
+                                }}
+                                className="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors flex items-center gap-3"
+                              >
+                                <div className="w-10 h-10 relative rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                                  <Image
+                                    src={category.imageUrl}
+                                    alt={category.name}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                                <span className="font-medium text-gray-900">{category.name}</span>
+                              </button>
+                            ))
+                          ) : (
+                            <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                              {t('noCategoriesFound')}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+                {/* Selected category display with quick change buttons */}
+                {!categorySearch && categories.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     <span className="text-xs text-gray-500 font-medium">{t('existingCategories')}</span>
-                    {existingCategories.slice(0, 5).map((category) => (
+                    {categories.slice(0, 5).map((category) => (
                       <button
-                        key={category}
+                        key={category._id}
                         type="button"
-                        onClick={() => setFormData({ ...formData, category })}
-                        className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                        onClick={() => setFormData({ ...formData, category: category.name })}
+                        className={`text-xs px-2 py-1 rounded-md transition-colors ${formData.category === category.name
+                            ? 'bg-[#31a354] text-white'
+                            : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                          }`}
                       >
-                        {category}
+                        {category.name}
                       </button>
                     ))}
-                    {existingCategories.length > 5 && (
-                      <span className="text-xs text-gray-400">+{existingCategories.length - 5} {t('more')}</span>
+                    {categories.length > 5 && (
+                      <span className="text-xs text-gray-400">+{categories.length - 5} {t('more')}</span>
                     )}
                   </div>
+                )}
+                {/* Validation error if no category selected */}
+                {!formData.category && categories.length === 0 && (
+                  <p className="text-xs text-amber-600 mt-1">
+                    {t('noCategoriesFound')}. {t('addFirstCategory')}
+                  </p>
                 )}
               </div>
 
