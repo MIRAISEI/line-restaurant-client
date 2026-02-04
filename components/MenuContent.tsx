@@ -9,6 +9,8 @@ import { IMenuItem } from "@/types/menu-types";
 interface Category {
     id: string;
     name: string;
+    nameEn: string;
+    nameJp: string;
     imageUrl?: string;
 }
 
@@ -20,9 +22,8 @@ interface MenuContentProps {
 export default function MenuContent({ initialCategories, apiBaseUrl }: MenuContentProps) {
     const locale = useLocale();
     const t = useTranslations('Home');
-    const [categories] = useState<Category[]>(initialCategories);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(
-        initialCategories.length > 0 ? initialCategories[0].name : null
+        initialCategories.length > 0 ? initialCategories[0].id : null
     );
     const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
     const [loading, setLoading] = useState(false);
@@ -89,7 +90,7 @@ export default function MenuContent({ initialCategories, apiBaseUrl }: MenuConte
     return (
         <div className="flex flex-col gap-8">
             <CategorySelector
-                categories={categories}
+                categories={initialCategories}
                 selectedCategory={selectedCategory}
                 onSelectCategory={setSelectedCategory}
             />

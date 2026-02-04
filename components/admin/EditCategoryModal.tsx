@@ -21,6 +21,8 @@ export default function EditCategoryModal({
     const t = useTranslations('Admin');
     const [formData, setFormData] = useState({
         name: "",
+        nameEn: "",
+        nameJp: "",
         imageUrl: "",
         isActive: true,
     });
@@ -31,12 +33,16 @@ export default function EditCategoryModal({
         if (category) {
             setFormData({
                 name: category.name,
+                nameEn: category.nameEn || category.name || "",
+                nameJp: category.nameJp || category.name || "",
                 imageUrl: category.imageUrl,
                 isActive: category.isActive,
             });
         } else {
             setFormData({
                 name: "",
+                nameEn: "",
+                nameJp: "",
                 imageUrl: "",
                 isActive: true,
             });
@@ -84,18 +90,33 @@ export default function EditCategoryModal({
                         </div>
                     )}
 
-                    {/* Name */}
+                    {/* Name (English) */}
                     <div className="mb-6">
                         <label className="block text-sm font-bold text-gray-700 mb-2">
-                            {t('categoryName')} <span className="text-red-500">*</span>
+                            {t('nameEn')} <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
                             required
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            value={formData.nameEn}
+                            onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
                             className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-[#31a354] focus:border-transparent font-medium transition-all duration-200"
-                            placeholder={t('enterCategoryName')}
+                            placeholder="Enter English Name"
+                        />
+                    </div>
+
+                    {/* Name (Japanese) */}
+                    <div className="mb-6">
+                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                            {t('nameJp')} <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            required
+                            value={formData.nameJp}
+                            onChange={(e) => setFormData({ ...formData, nameJp: e.target.value })}
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-[#31a354] focus:border-transparent font-medium transition-all duration-200"
+                            placeholder="Enter Japanese Name"
                         />
                     </div>
 

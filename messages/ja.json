@@ -1,4 +1,16 @@
 {
+    "Categories": {
+        "Alcohol & Beverages": "お酒・飲み物",
+        "Sushi": "寿司",
+        "Ramen": "ラーメン",
+        "Gyudon": "牛丼",
+        "Desserts": "デザート",
+        "Sides": "サイドメニュー",
+        "Burgers": "ハンバーガー",
+        "Set meals": "定食",
+        "Gyumeshi": "牛めし",
+        "CURRY": "カレー"
+    },
     "Header": {
         "title": "すき家レストラン",
         "cart": "カート",
