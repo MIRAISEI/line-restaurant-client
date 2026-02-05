@@ -1,7 +1,30 @@
 {
+    "Categories": {
+        "Alcohol & Beverages": "お酒・飲み物",
+        "Sushi": "寿司",
+        "Ramen": "ラーメン",
+        "Gyudon": "牛丼",
+        "Desserts": "デザート",
+        "Sides": "サイドメニュー",
+        "Burgers": "ハンバーガー",
+        "Set meals": "定食",
+        "Gyumeshi": "牛めし",
+        "CURRY": "カレー"
+    },
     "Header": {
         "title": "すき家レストラン",
-        "cart": "カート"
+        "cart": "カート",
+        "orderHistory": "注文履歴"
+    },
+    "History": {
+        "title": "注文履歴",
+        "noOrders": "注文履歴がありません",
+        "orderId": "注文ID",
+        "date": "日付",
+        "items": "点",
+        "total": "合計",
+        "status": "ステータス",
+        "viewDetails": "詳細を見る"
     },
     "Home": {
         "hello": "こんにちは！",
