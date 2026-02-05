@@ -1,32 +1,46 @@
+<<<<<<< dev/yohan-payments
 import MenuItemsFilter from "@/components/MenuItemsFilter";
 import { MenuItemsResponse } from "@/types/menu-types";
+=======
+>>>>>>> main
 import { getTranslations, getLocale } from 'next-intl/server';
+import MenuContent from "@/components/MenuContent";
 
 // Get API base URL - use sukiya-api backend
 function getApiBaseUrl(): string {
-  // If explicitly set in env, use it (for local development: http://localhost:5001)
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL;
   }
-
-  // Default to production API URL
   return "";
 }
 
+<<<<<<< dev/yohan-payments
 async function getMenuItems(locale: string): Promise<MenuItemsResponse> {
+=======
+const API_BASE_URL = getApiBaseUrl(); // Define API_BASE_URL here
+
+interface Category {
+  id: string;
+  name: string;
+  nameEn: string;
+  nameJp: string;
+  imageUrl?: string;
+  isActive?: boolean;
+}
+
+async function getCategories(): Promise<Category[]> {
+>>>>>>> main
   try {
-    // Fetch from sukiya-api backend
-    const apiBaseUrl = getApiBaseUrl();
-    const response = await fetch(`${apiBaseUrl}/api/menu`, {
+    const response = await fetch(`${API_BASE_URL}/api/categories`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      // For server components, we can use cache: 'no-store' to always get fresh data
-      cache: 'no-store',
+      next: { revalidate: 0 },
     });
 
     if (!response.ok) {
+<<<<<<< dev/yohan-payments
       console.error('Failed to fetch menu items:', response.status, response.statusText);
       return { items: [], categories: []};
     }
@@ -66,24 +80,48 @@ async function getMenuItems(locale: string): Promise<MenuItemsResponse> {
         isAvailable: item.isActive !== false,
         category: item.category || '',
         subcategory: item.subcategory || null,
+=======
+      throw new Error('Failed to fetch categories');
+    }
+
+    const data = await response.json();
+    return data
+      .filter((cat: Category) => cat.isActive !== false)
+      .map((cat: Category) => ({
+        id: cat.nameEn || cat.name, // We use nameEn as ID for filtering in menu API
+        name: cat.name,
+        nameEn: cat.nameEn || cat.name || '',
+        nameJp: cat.nameJp || cat.name || '',
+        imageUrl: cat.imageUrl,
+>>>>>>> main
       }));
       return {
         items,
         categories};
   } catch (error) {
+<<<<<<< dev/yohan-payments
     console.error('Error fetching menu items from API:', error);
     return { items: [], categories: []};
+=======
+    console.error('Error fetching categories:', error);
+    return [];
+>>>>>>> main
   }
 }
 
 export default async function Home() {
-  const locale = await getLocale();
   const t = await getTranslations('Home');
+<<<<<<< dev/yohan-payments
   const {items, categories} = await getMenuItems(locale);
+=======
+  const categories = await getCategories();
+  const apiBaseUrl = getApiBaseUrl();
+>>>>>>> main
 
   return (
     <main className="flex min-h-screen bg-background transition-colors duration-300">
       <div className="inner-wrapper flex-col mt-[100px]">
+<<<<<<< dev/yohan-payments
         <h1 className="text-3xl font-bold">{t('hello')}</h1>
         <p className="text-muted-foreground">{t('welcome')}</p>
        
@@ -96,6 +134,17 @@ export default async function Home() {
             <p>{t('noItems')}</p>
           </div>
         )}
+=======
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold">{t('hello')}</h1>
+          <p className="text-muted-foreground">{t('welcome')}</p>
+        </div>
+
+        <MenuContent
+          initialCategories={categories}
+          apiBaseUrl={apiBaseUrl}
+        />
+>>>>>>> main
       </div>
     </main>
   );

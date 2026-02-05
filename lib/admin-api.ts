@@ -160,6 +160,8 @@ export interface User {
 export interface Category {
   _id: string;
   name: string;
+  nameEn: string;
+  nameJp: string;
   imageUrl: string;
   isActive: boolean;
   createdAt: string;
@@ -362,6 +364,26 @@ export async function getOrders(): Promise<Order[]> {
       throw error;
     }
     throw new Error('Failed to fetch orders');
+  }
+}
+
+export async function getUserOrders(userId: string): Promise<Order[]> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/orders/user/${userId}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to fetch user orders');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to fetch user orders');
   }
 }
 
