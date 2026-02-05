@@ -9,3 +9,8 @@ export interface IMenuItem {
     subcategory?:string | null;
     isAddon?:boolean;
 }
+export interface MenuItemsResponse {
+  items: IMenuItem[];
+  categories: string[];
+}
+
