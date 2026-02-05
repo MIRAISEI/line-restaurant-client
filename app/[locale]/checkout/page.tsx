@@ -7,7 +7,6 @@ import { useAuth } from "@/lib/auth-context";
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import PayPayCheckoutModal from "@/components/PayPayCheckoutModal";
-import directPaypay from "@/lib/direct-paypay";
 
 type PaymentMethod = "manual" | "paypay";
 type PayPayTiming = "now" | "after";
@@ -83,15 +82,6 @@ function CheckoutPage() {
     // For manual payment, create order directly
     // PayPay will be handled by the modal
     await createOrder();
-
-    if (paymentMethod === "paypay") {
-      await directPaypay({ 
-        orderid: createdOrderId!, 
-        amount: totalCartAmount, 
-        description: `Order payment for table ${createdOrderId!}` 
-      });
-    }
-    
   };
 
   const createOrder = async () => {
@@ -158,11 +148,9 @@ function CheckoutPage() {
       setCreatedOrderId(orderData.orderId);
 
       // Clear cart and redirect
-      if (paymentMethod !== "paypay") {
-        dispatch({ type: "CLEAR_CART" });
-        const successUrl = `/checkout/success?orderId=${orderData.orderId}&payment=${paymentMethod}&status=${orderData.paymentStatus || "pending"}`;
-        router.push(successUrl);
-      }
+      dispatch({ type: "CLEAR_CART" });
+      const successUrl = `/checkout/success?orderId=${orderData.orderId}&payment=${paymentMethod}&status=${orderData.paymentStatus || "pending"}`;
+      router.push(successUrl);
     } catch (err) {
       console.error("Order submission error:", err);
       setError(err instanceof Error ? err.message : "Failed to place order");
@@ -362,7 +350,7 @@ function CheckoutPage() {
                             setPaymentMethod("paypay");
                             // Open PayPay popup immediately when selected
                             if (!isSubmitting) {
-                              setShowPayPayModal(false);
+                              setShowPayPayModal(true);
                             }
                           }}
                           className="w-5 h-5 text-orange-500 focus:ring-orange-500 mb-3"
@@ -482,17 +470,7 @@ function CheckoutPage() {
           </div>
         </div>
       </main>
-      {isSubmitting && paymentMethod === "paypay" && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-    <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center">
-      <svg className="animate-spin h-10 w-10 text-orange-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <p className="text-gray-700 text-sm">Redirecting to PayPay...</p>
-    </div>
-  </div>
-)}
+
       {/* PayPay Payment Modal */}
       {showPayPayModal && (
         <PayPayCheckoutModal
