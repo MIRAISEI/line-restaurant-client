@@ -5,6 +5,14 @@ import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useAuth } from "@/lib/auth-context";
 import { useEffect, useState } from "react";
 import { getOrders } from "@/lib/admin-api";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Globe, Check } from "lucide-react";
 
 export default function AdminNavigation() {
   const t = useTranslations('Admin');
@@ -14,8 +22,7 @@ export default function AdminNavigation() {
   const router = useRouter();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const handleLanguageToggle = () => {
-    const nextLocale = locale === 'en' ? 'ja' : 'en';
+  const switchLanguage = (nextLocale: string) => {
     router.replace(pathname, { locale: nextLocale });
   };
 
@@ -129,13 +136,34 @@ export default function AdminNavigation() {
                 </>
               )}
 
-              <button
-                onClick={handleLanguageToggle}
-                className="p-2 text-gray-600 hover:text-[#06C755] transition-colors duration-200 rounded-lg hover:bg-white/50 active:scale-95 touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center font-bold"
-                aria-label="Toggle Language"
-              >
-                {locale === 'en' ? 'JP' : 'EN'}
-              </button>
+              {/* Language Switcher */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="p-2 text-gray-600 hover:text-[#06C755] transition-colors duration-200 rounded-lg hover:bg-white/50 active:scale-95 touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center font-bold gap-2"
+                  >
+                    <Globe className="h-5 w-5" />
+                    <span className="hidden sm:inline-block">
+                      {locale === 'en' ? 'EN' : locale === 'ja' ? 'JP' : 'ZH'}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => switchLanguage('en')} className="gap-2">
+                    <span>English</span>
+                    {locale === 'en' && <Check className="h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => switchLanguage('ja')} className="gap-2">
+                    <span>日本語</span>
+                    {locale === 'ja' && <Check className="h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => switchLanguage('zh')} className="gap-2">
+                    <span>中文</span>
+                    {locale === 'zh' && <Check className="h-4 w-4" />}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <button
                 onClick={handleLogout}
@@ -189,13 +217,41 @@ export default function AdminNavigation() {
             </Link>
           )}
 
-          <button
-            onClick={handleLanguageToggle}
-            className="w-full px-5 py-4 text-gray-700 hover:bg-white/50 rounded-xl font-bold transition-all duration-200 active:scale-95 touch-manipulation min-h-[56px] flex items-center gap-3 border-t border-white/50"
-          >
-            <span className="text-xl">🌐</span>
-            <span>{locale === 'en' ? '日本語に切り替え' : 'Switch to English'}</span>
-          </button>
+          {/* Mobile Language Selection */}
+          <div className="px-5 py-4 border-t border-white/50 space-y-3">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+              {locale === 'en' ? 'Language' : locale === 'ja' ? '言語' : '语言'}
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={() => switchLanguage('en')}
+                className={`flex-1 py-3 rounded-xl font-bold transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 ${locale === 'en'
+                  ? "bg-gradient-to-r from-[#06C755] to-[#00C300] text-white shadow-md"
+                  : "bg-white text-gray-600 border border-gray-200"
+                  }`}
+              >
+                <span>EN</span>
+              </button>
+              <button
+                onClick={() => switchLanguage('ja')}
+                className={`flex-1 py-3 rounded-xl font-bold transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 ${locale === 'ja'
+                  ? "bg-gradient-to-r from-[#06C755] to-[#00C300] text-white shadow-md"
+                  : "bg-white text-gray-600 border border-gray-200"
+                  }`}
+              >
+                <span>JP</span>
+              </button>
+              <button
+                onClick={() => switchLanguage('zh')}
+                className={`flex-1 py-3 rounded-xl font-bold transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 ${locale === 'zh'
+                  ? "bg-gradient-to-r from-[#06C755] to-[#00C300] text-white shadow-md"
+                  : "bg-white text-gray-600 border border-gray-200"
+                  }`}
+              >
+                <span>ZH</span>
+              </button>
+            </div>
+          </div>
 
           <button
             onClick={handleLogout}
