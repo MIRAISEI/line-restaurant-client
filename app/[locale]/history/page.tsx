@@ -26,7 +26,16 @@ export default function HistoryPage() {
                 try {
                     setLoadingOrders(true);
                     const data = await getUserOrders(user.userId);
-                    setOrders(data);
+                    // Filter for today's orders only
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    const filteredData = data.filter(order => {
+                        const orderDate = new Date(order.createdAt);
+                        return orderDate >= today;
+                    });
+
+                    setOrders(filteredData);
                 } catch (error) {
                     console.error("Failed to fetch orders", error);
                 } finally {
@@ -80,9 +89,9 @@ export default function HistoryPage() {
                                         </span>
                                     </div>
                                     <div className={`px-3 py-1 rounded-full text-xs font-bold capitalize ${order.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                                            order.status === 'Ready' ? 'bg-blue-100 text-blue-700' :
-                                                order.status === 'Preparing' ? 'bg-yellow-100 text-yellow-700' :
-                                                    'bg-gray-100 text-gray-700'
+                                        order.status === 'Ready' ? 'bg-blue-100 text-blue-700' :
+                                            order.status === 'Preparing' ? 'bg-yellow-100 text-yellow-700' :
+                                                'bg-gray-100 text-gray-700'
                                         }`}>
                                         {order.status}
                                     </div>
