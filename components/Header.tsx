@@ -8,6 +8,13 @@ import { useAuth } from "@/lib/auth-context";
 import { useTranslations, useLocale } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/routing';
 import { Button } from "./ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Globe, Check } from "lucide-react";
 
 const Header = () => {
     const t = useTranslations('Header');
@@ -18,10 +25,10 @@ const Header = () => {
     const router = useRouter();
     const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-    const toggleLanguage = () => {
-        const nextLocale = locale === 'en' ? 'ja' : 'en';
+    const switchLanguage = (nextLocale: string) => {
         router.replace(pathname, { locale: nextLocale });
     };
+
 
     return (
         <>
@@ -35,12 +42,34 @@ const Header = () => {
                     </div>
                     <div className="flex items-center gap-4">
                         {/* Language Switcher */}
-                        <Button
-                            onClick={toggleLanguage}
-                            className="bg-transparent hover:bg-primary/80 border-2 border-[#ffdf93] text-[#ffdf93] px-3 py-1 font-bold"
-                        >
-                            {locale === 'en' ? '日本語' : 'EN'}
-                        </Button>
+                        {/* Language Switcher */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className="bg-transparent hover:bg-primary/80 border-2 border-[#ffdf93] text-[#ffdf93] px-3 py-1 font-bold gap-2"
+                                >
+                                    <Globe className="h-4 w-4" />
+                                    <span className="hidden sm:inline-block">
+                                        {locale === 'en' ? 'EN' : locale === 'ja' ? 'JP' : 'ZH'}
+                                    </span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => switchLanguage('en')} className="gap-2">
+                                    <span>English</span>
+                                    {locale === 'en' && <Check className="h-4 w-4" />}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => switchLanguage('ja')} className="gap-2">
+                                    <span>日本語</span>
+                                    {locale === 'ja' && <Check className="h-4 w-4" />}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => switchLanguage('zh')} className="gap-2">
+                                    <span>中文</span>
+                                    {locale === 'zh' && <Check className="h-4 w-4" />}
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
 
                         {/* Order History Button (only for authenticated users) */}
                         {isAuthenticated && (

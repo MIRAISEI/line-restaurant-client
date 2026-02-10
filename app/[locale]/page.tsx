@@ -44,9 +44,10 @@ async function getCategories(): Promise<Category[]> {
         nameJp: cat.nameJp || cat.name || '',
         imageUrl: cat.imageUrl,
       }));
-      return {
-        items,
-        categories};
+    return {
+      items,
+      categories
+    };
   } catch (error) {
     console.error('Error fetching categories:', error);
     return [];
