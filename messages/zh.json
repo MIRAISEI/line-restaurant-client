@@ -161,7 +161,7 @@
         "orderDetails": "订单详情",
         "manageAndTrack": "管理和追踪所有订单",
         "orderId": "订单号",
-        "table": "桌号",
+        "tableHeader": "桌号",
         "customer": "顾客",
         "status": "状态",
         "paymentMethod": "支付方式",
@@ -242,6 +242,79 @@
         "existingCategories": "现有分类：",
         "more": "更多",
         "selectCategory": "选择现有或输入新分类",
-        "typeOrSelectCategory": "输入或选择分类"
+        "typeOrSelectCategory": "输入或选择分类",
+        "userManagement": "用户管理",
+        "addUser": "添加用户",
+        "searchUsers": "按姓名或ID搜索...",
+        "noUsersFound": "未找到用户",
+        "usersWillAppear": "用户下单后将显示在此处",
+        "tryAdjustingSearch": "尝试调整搜索条件",
+        "roles": {
+            "all": "所有角色",
+            "admin": "管理员",
+            "manager": "经理",
+            "staff": "员工",
+            "customer": "顾客"
+        },
+        "table": {
+            "user": "用户",
+            "userId": "用户ID",
+            "totalOrders": "总订单数",
+            "totalSpent": "总消费",
+            "lastOrder": "最近订单",
+            "role": "角色",
+            "status": "状态",
+            "actions": "操作"
+        },
+        "timeAgo": {
+            "secAgo": "{count}秒前",
+            "minAgo": "{count}分钟前",
+            "hourAgo": "{count}小时前",
+            "dayAgo": "{count}天前",
+            "never": "从未"
+        },
+        "deleteUserConfirm": "确定要删除用户 \"{name}\" 吗？",
+        "payPayModal": {
+            "title": "完成 PayPay 支付",
+            "description": "确认柜台 PayPay 支付已完成。",
+            "markAsPaid": "标记为已支付",
+            "payPayQr": "PayPay 二维码",
+            "openInPayPay": "在 PayPay 中打开",
+            "qrNotAvailable": "后台未提供二维码。请在后台提供 PayPay URL 后刷新。",
+            "confirmMessage": "确认后，此订单将被标记为通过 PayPay <strong>已支付</strong>。",
+            "failedToLoadQrImage": "加载二维码图片失败",
+            "retry": "重试",
+            "loadingQr": "正在加载 PayPay 二维码..."
+        },
+        "paymentOptions": {
+            "selectStatus": "选择支付状态",
+            "pending": "待处理",
+            "paypayComplete": "PayPay 支付完成",
+            "manualComplete": "柜台支付完成",
+            "cancel": "设为待处理/取消"
+        },
+        "paymentMethods": {
+            "paypayAfter": "PayPay (餐后)",
+            "manualCounter": "人工 (柜台)"
+        },
+        "paymentStatuses": {
+            "paid": "已支付",
+            "pending": "待处理",
+            "notRecorded": "未记录"
+        },
+        "addUserModal": {
+            "title": "添加新用户",
+            "description": "创建一个新的用户帐户",
+            "userId": "用户ID",
+            "displayName": "显示名称",
+            "email": "电子邮件",
+            "phone": "电话号码",
+            "role": "角色",
+            "cancel": "取消",
+            "creating": "正在创建...",
+            "createUser": "创建用户",
+            "errorUserIdNameRequired": "用户ID和显示名称为必填项",
+            "errorCreateUser": "创建用户失败。请重试。"
+        }
     }
 }

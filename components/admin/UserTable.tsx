@@ -5,14 +5,17 @@ import { getUsers, updateUser, deleteUser, type User, type UserRole } from "@/li
 import { useAuth } from "@/lib/auth-context";
 import AddUserModal from "./AddUserModal";
 
+import { useTranslations } from "next-intl";
+
 export default function UserTable() {
+  const t = useTranslations('Admin');
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  
+
   // Check if current user has admin or manager role
   const canManageUsers = currentUser?.role === "admin" || currentUser?.role === "manager";
 
@@ -85,7 +88,7 @@ export default function UserTable() {
   };
 
   const handleDelete = async (user: User) => {
-    if (!confirm(`Are you sure you want to delete user "${user.displayName}"?`)) {
+    if (!confirm(t('deleteUserConfirm', { name: user.displayName }))) {
       return;
     }
     try {
@@ -100,8 +103,8 @@ export default function UserTable() {
       await handleRefresh();
     } catch (error) {
       console.error("Failed to delete user:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to delete user. Please try again.";
-      alert(`Error: ${errorMessage}`);
+      const errorMessage = error instanceof Error ? error.message : t('Payment.error');
+      alert(`${t('Payment.error')}: ${errorMessage}`);
     }
   };
 
@@ -116,15 +119,15 @@ export default function UserTable() {
   };
 
   const formatTimeAgo = (dateString?: string) => {
-    if (!dateString) return "Never";
+    if (!dateString) return t('timeAgo.never');
     const now = new Date();
     const date = new Date(dateString);
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
-    if (diffInSeconds < 60) return `${diffInSeconds} sec ago`;
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hour ago`;
-    return `${Math.floor(diffInSeconds / 86400)} day ago`;
+
+    if (diffInSeconds < 60) return t('timeAgo.secAgo', { count: diffInSeconds });
+    if (diffInSeconds < 3600) return t('timeAgo.minAgo', { count: Math.floor(diffInSeconds / 60) });
+    if (diffInSeconds < 86400) return t('timeAgo.hourAgo', { count: Math.floor(diffInSeconds / 3600) });
+    return t('timeAgo.dayAgo', { count: Math.floor(diffInSeconds / 86400) });
   };
 
   const filteredUsers = users.filter((user) => {
@@ -143,7 +146,7 @@ export default function UserTable() {
             <div className="w-16 h-16 border-4 border-[#06C755]/20 rounded-full"></div>
             <div className="w-16 h-16 border-4 border-[#06C755] border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
           </div>
-          <p className="text-gray-600 font-medium text-lg">Loading users...</p>
+          <p className="text-gray-600 font-medium text-lg">{t('loading')}</p>
         </div>
       </div>
     );
@@ -154,41 +157,41 @@ export default function UserTable() {
       {/* Search and Filter Bar */}
       <div className="mb-6 flex flex-col md:flex-row gap-4">
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Search users by name or ID..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-xl border-2 border-gray-200 bg-white/80 backdrop-blur-sm px-4 py-3 pl-12 text-base font-medium text-gray-900 shadow-sm focus:border-[#06C755] focus:ring-2 focus:ring-[#06C755]/20 focus:outline-none transition-all duration-200 min-h-[48px] touch-manipulation hover:border-gray-300"
-          />
-          <svg
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          <div className="relative">
+            <input
+              type="text"
+              placeholder={t('searchUsers')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-xl border-2 border-gray-200 bg-white/80 backdrop-blur-sm px-4 py-3 pl-12 text-base font-medium text-gray-900 shadow-sm focus:border-[#06C755] focus:ring-2 focus:ring-[#06C755]/20 focus:outline-none transition-all duration-200 min-h-[48px] touch-manipulation hover:border-gray-300"
             />
-          </svg>
-        </div>
-        <div>
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value as UserRole | "all")}
-            className="w-full rounded-xl border-2 border-gray-200 bg-white/80 backdrop-blur-sm px-4 py-3 text-base font-medium text-gray-900 shadow-sm focus:border-[#06C755] focus:ring-2 focus:ring-[#06C755]/20 focus:outline-none transition-all duration-200 min-h-[48px] touch-manipulation hover:border-gray-300"
-          >
-            <option value="all">All Roles</option>
-            <option value="customer">Customer</option>
-            <option value="staff">Staff</option>
-            <option value="manager">Manager</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
+            <svg
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+          <div>
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value as UserRole | "all")}
+              className="w-full rounded-xl border-2 border-gray-200 bg-white/80 backdrop-blur-sm px-4 py-3 text-base font-medium text-gray-900 shadow-sm focus:border-[#06C755] focus:ring-2 focus:ring-[#06C755]/20 focus:outline-none transition-all duration-200 min-h-[48px] touch-manipulation hover:border-gray-300"
+            >
+              <option value="all">{t('roles.all')}</option>
+              <option value="customer">{t('roles.customer')}</option>
+              <option value="staff">{t('roles.staff')}</option>
+              <option value="manager">{t('roles.manager')}</option>
+              <option value="admin">{t('roles.admin')}</option>
+            </select>
+          </div>
         </div>
         {canManageUsers && (
           <button
@@ -196,7 +199,7 @@ export default function UserTable() {
             className="px-6 py-3 bg-gradient-to-r from-[#06C755] to-[#00C300] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 touch-manipulation min-h-[48px] flex items-center justify-center gap-2"
           >
             <span>+</span>
-            <span>Add User</span>
+            <span>{t('addUser')}</span>
           </button>
         )}
       </div>
@@ -207,9 +210,9 @@ export default function UserTable() {
             <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center text-4xl">
               👥
             </div>
-            <p className="text-xl font-bold text-gray-900 mb-2">No users found</p>
+            <p className="text-xl font-bold text-gray-900 mb-2">{t('noUsersFound')}</p>
             <p className="text-gray-500">
-              {searchQuery ? "Try adjusting your search query" : "Users will appear here when they place orders"}
+              {searchQuery ? t('tryAdjustingSearch') : t('usersWillAppear')}
             </p>
           </div>
         </div>
@@ -220,28 +223,28 @@ export default function UserTable() {
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                    User
+                    {t('table.user')}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                    User ID
+                    {t('table.userId')}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                    Total Orders
+                    {t('table.totalOrders')}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                    Total Spent
+                    {t('table.totalSpent')}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                    Last Order
+                    {t('table.lastOrder')}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                    Role
+                    {t('table.role')}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                    Status
+                    {t('table.status')}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                    Actions
+                    {t('table.actions')}
                   </th>
                 </tr>
               </thead>
@@ -296,14 +299,14 @@ export default function UserTable() {
                           onChange={(e) => handleRoleChange(user, e.target.value as UserRole)}
                           className={`px-3 py-1.5 text-xs font-bold rounded-lg border-2 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#06C755]/20 cursor-pointer ${getRoleBadgeColor(user.role)}`}
                         >
-                          <option value="customer">Customer</option>
-                          <option value="staff">Staff</option>
-                          <option value="manager">Manager</option>
-                          <option value="admin">Admin</option>
+                          <option value="customer">{t('roles.customer')}</option>
+                          <option value="staff">{t('roles.staff')}</option>
+                          <option value="manager">{t('roles.manager')}</option>
+                          <option value="admin">{t('roles.admin')}</option>
                         </select>
                       ) : (
                         <span className={`px-3 py-1.5 text-xs font-bold rounded-lg border-2 ${getRoleBadgeColor(user.role)}`}>
-                          {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                          {t(`roles.${user.role}`)}
                         </span>
                       )}
                     </td>
@@ -311,21 +314,19 @@ export default function UserTable() {
                       {canManageUsers ? (
                         <button
                           onClick={() => handleToggleStatus(user)}
-                          className={`px-3 py-1.5 text-xs font-bold rounded-full border-2 shadow-sm transition-all duration-200 active:scale-95 touch-manipulation ${
-                            user.isActive
-                              ? "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
-                              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-                          }`}
+                          className={`px-3 py-1.5 text-xs font-bold rounded-full border-2 shadow-sm transition-all duration-200 active:scale-95 touch-manipulation ${user.isActive
+                            ? "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
+                            : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+                            }`}
                         >
-                          {user.isActive ? "Active" : "Inactive"}
+                          {user.isActive ? t('active') : t('inactive')}
                         </button>
                       ) : (
-                        <span className={`px-3 py-1.5 text-xs font-bold rounded-full border-2 ${
-                          user.isActive
-                            ? "bg-green-100 text-green-700 border-green-300"
-                            : "bg-gray-100 text-gray-700 border-gray-300"
-                        }`}>
-                          {user.isActive ? "Active" : "Inactive"}
+                        <span className={`px-3 py-1.5 text-xs font-bold rounded-full border-2 ${user.isActive
+                          ? "bg-green-100 text-green-700 border-green-300"
+                          : "bg-gray-100 text-gray-700 border-gray-300"
+                          }`}>
+                          {user.isActive ? t('active') : t('inactive')}
                         </span>
                       )}
                     </td>
@@ -336,7 +337,7 @@ export default function UserTable() {
                             onClick={() => handleDelete(user)}
                             className="px-4 py-2 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-all duration-200 active:scale-95 touch-manipulation min-h-[40px] border border-red-200"
                           >
-                            Delete
+                            {t('delete')}
                           </button>
                         </div>
                       )}

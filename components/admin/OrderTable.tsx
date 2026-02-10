@@ -75,7 +75,7 @@ export default function OrderTable() {
                     {t('time')}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                    {t('table')}
+                    {t('tableHeader')}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                     {t('orderItems')}

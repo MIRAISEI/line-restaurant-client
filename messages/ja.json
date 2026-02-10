@@ -161,7 +161,7 @@
         "orderDetails": "注文詳細",
         "manageAndTrack": "すべての注文を管理・追跡",
         "orderId": "注文ID",
-        "table": "テーブル",
+        "tableHeader": "テーブル",
         "customer": "顧客",
         "status": "ステータス",
         "paymentMethod": "支払い方法",
@@ -241,6 +241,79 @@
         "existingCategories": "既存のカテゴリー:",
         "more": "件以上",
         "selectCategory": "既存のものを選択、または新規入力",
-        "typeOrSelectCategory": "カテゴリーを入力または選択"
+        "typeOrSelectCategory": "カテゴリーを入力または選択",
+        "userManagement": "ユーザー管理",
+        "addUser": "ユーザーを追加",
+        "searchUsers": "名前またはIDで検索...",
+        "noUsersFound": "ユーザーが見つかりません",
+        "usersWillAppear": "ユーザーが注文するとここに表示されます",
+        "tryAdjustingSearch": "検索条件を変更してみてください",
+        "roles": {
+            "all": "すべての役割",
+            "admin": "管理者",
+            "manager": "マネージャー",
+            "staff": "スタッフ",
+            "customer": "顧客"
+        },
+        "table": {
+            "user": "ユーザー",
+            "userId": "ユーザーID",
+            "totalOrders": "総注文数",
+            "totalSpent": "総支出",
+            "lastOrder": "最終注文",
+            "role": "役割",
+            "status": "ステータス",
+            "actions": "操作"
+        },
+        "timeAgo": {
+            "secAgo": "{count}秒前",
+            "minAgo": "{count}分前",
+            "hourAgo": "{count}時間前",
+            "dayAgo": "{count}日前",
+            "never": "記録なし"
+        },
+        "deleteUserConfirm": "ユーザー「{name}」を削除してもよろしいですか？",
+        "payPayModal": {
+            "title": "PayPay支払いを完了",
+            "description": "カウンターでのPayPay支払いが完了したことを確認してください。",
+            "markAsPaid": "支払い済みにする",
+            "payPayQr": "PayPay QRコード",
+            "openInPayPay": "PayPayで開く",
+            "qrNotAvailable": "バックエンドからQRコードを取得できません。バックエンドがPayPay QR URLを提供した後、更新してください。",
+            "confirmMessage": "確認すると、この注文はPayPay経由で<strong>支払い済み</strong>としてマークされます。",
+            "failedToLoadQrImage": "QRコード画像の読み込みに失敗しました",
+            "retry": "再試行",
+            "loadingQr": "PayPay QRコードを読み込み中..."
+        },
+        "paymentOptions": {
+            "selectStatus": "支払い状況を選択",
+            "pending": "保留中",
+            "paypayComplete": "PayPayで完了",
+            "manualComplete": "カウンター支払いで完了",
+            "cancel": "保留/キャンセルに設定"
+        },
+        "paymentMethods": {
+            "paypayAfter": "PayPay（食後払い）",
+            "manualCounter": "カウンター支払い"
+        },
+        "paymentStatuses": {
+            "paid": "支払い済み",
+            "pending": "保留中",
+            "notRecorded": "未記録"
+        },
+        "addUserModal": {
+            "title": "ユーザーを追加",
+            "description": "新しいユーザーアカウントを作成します",
+            "userId": "ユーザーID",
+            "displayName": "表示名",
+            "email": "メールアドレス",
+            "phone": "電話番号",
+            "role": "役割",
+            "cancel": "キャンセル",
+            "creating": "作成中...",
+            "createUser": "ユーザーを作成",
+            "errorUserIdNameRequired": "ユーザーIDと表示名は必須です",
+            "errorCreateUser": "ユーザーの作成に失敗しました。もう一度お試しください。"
+        }
     }
 }

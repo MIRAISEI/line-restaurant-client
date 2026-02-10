@@ -161,7 +161,7 @@
         "orderDetails": "Order Details",
         "manageAndTrack": "Manage and track all orders",
         "orderId": "Order ID",
-        "table": "Table",
+        "tableHeader": "Table",
         "customer": "Customer",
         "status": "Status",
         "paymentMethod": "Payment Method",
@@ -241,6 +241,79 @@
         "existingCategories": "Existing categories:",
         "more": "more",
         "selectCategory": "Select existing or type new",
-        "typeOrSelectCategory": "Type or select a category"
+        "typeOrSelectCategory": "Type or select a category",
+        "userManagement": "User Management",
+        "addUser": "Add User",
+        "searchUsers": "Search users by name or ID...",
+        "noUsersFound": "No users found",
+        "usersWillAppear": "Users will appear here when they place orders",
+        "tryAdjustingSearch": "Try adjusting your search query",
+        "roles": {
+            "all": "All Roles",
+            "admin": "Admin",
+            "manager": "Manager",
+            "staff": "Staff",
+            "customer": "Customer"
+        },
+        "table": {
+            "user": "User",
+            "userId": "User ID",
+            "totalOrders": "Total Orders",
+            "totalSpent": "Total Spent",
+            "lastOrder": "Last Order",
+            "role": "Role",
+            "status": "Status",
+            "actions": "Actions"
+        },
+        "timeAgo": {
+            "secAgo": "{count} sec ago",
+            "minAgo": "{count} min ago",
+            "hourAgo": "{count} hour ago",
+            "dayAgo": "{count} day ago",
+            "never": "Never"
+        },
+        "deleteUserConfirm": "Are you sure you want to delete user \"{name}\"?",
+        "payPayModal": {
+            "title": "Complete PayPay Payment",
+            "description": "Confirm that PayPay payment was completed at the counter.",
+            "markAsPaid": "Mark as Paid",
+            "payPayQr": "PayPay QR",
+            "openInPayPay": "Open in PayPay",
+            "qrNotAvailable": "QR code is not available from the backend. Please refresh after the backend provides a PayPay QR URL.",
+            "confirmMessage": "By confirming, this order will be marked as <strong>Paid</strong> via PayPay.",
+            "failedToLoadQrImage": "Failed to load QR code image",
+            "retry": "Retry",
+            "loadingQr": "Loading PayPay QR..."
+        },
+        "paymentOptions": {
+            "selectStatus": "Select payment status",
+            "pending": "Pending",
+            "paypayComplete": "Complete with PayPay",
+            "manualComplete": "Complete Manual Pay",
+            "cancel": "Set as Pending / Cancel"
+        },
+        "paymentMethods": {
+            "paypayAfter": "PayPay (After dining)",
+            "manualCounter": "Manual (Counter)"
+        },
+        "paymentStatuses": {
+            "paid": "Paid",
+            "pending": "Pending",
+            "notRecorded": "Not recorded"
+        },
+        "addUserModal": {
+            "title": "Add New User",
+            "description": "Create a new user account",
+            "userId": "User ID",
+            "displayName": "Display Name",
+            "email": "Email",
+            "phone": "Phone",
+            "role": "Role",
+            "cancel": "Cancel",
+            "creating": "Creating...",
+            "createUser": "Create User",
+            "errorUserIdNameRequired": "User ID and Display Name are required",
+            "errorCreateUser": "Failed to create user. Please try again."
+        }
     }
 }
