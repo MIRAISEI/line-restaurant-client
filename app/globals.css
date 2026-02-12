@@ -263,3 +263,21 @@ body {
 .react-datepicker__navigation:hover *::before {
   border-color: rgba(255, 255, 255, 0.8);
 }
+
+/* Custom Scrollbar utility for premium feel */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}

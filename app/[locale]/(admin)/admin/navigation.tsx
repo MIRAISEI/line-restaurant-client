@@ -12,7 +12,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Globe, Check } from "lucide-react";
+import {
+  Globe,
+  Check,
+  LayoutDashboard,
+  ShoppingCart,
+  Utensils,
+  Tags,
+  Users,
+  User,
+  Bell,
+  LogOut,
+  ChevronRight,
+  Menu,
+  X
+} from "lucide-react";
 
 export default function AdminNavigation() {
   const t = useTranslations('Admin');
@@ -21,6 +35,7 @@ export default function AdminNavigation() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const switchLanguage = (nextLocale: string) => {
     router.replace(pathname, { locale: nextLocale });
@@ -33,7 +48,6 @@ export default function AdminNavigation() {
         const oneDayAgo = new Date();
         oneDayAgo.setHours(oneDayAgo.getHours() - 24);
 
-        // Count recent orders (last 24 hours) as unread notifications
         const recentCount = orders.filter(order => {
           const orderDate = new Date(order.createdAt);
           return orderDate >= oneDayAgo;
@@ -47,7 +61,6 @@ export default function AdminNavigation() {
 
     if (user) {
       fetchUnreadCount();
-      // Refresh count every 30 seconds
       const interval = setInterval(fetchUnreadCount, 30000);
       return () => clearInterval(interval);
     }
@@ -58,262 +71,181 @@ export default function AdminNavigation() {
     router.push("/admin/login");
   };
 
+  const navItems = [
+    { href: "/admin", label: t('dashboard'), icon: LayoutDashboard },
+    { href: "/admin/orders", label: t('orders'), icon: ShoppingCart },
+    { href: "/admin/menu", label: t('menu'), icon: Utensils },
+    { href: "/admin/categories", label: t('categories'), icon: Tags },
+    ...(user?.role === "admin" || user?.role === "manager"
+      ? [{ href: "/admin/users", label: t('users'), icon: Users }]
+      : []),
+    { href: "/admin/profile", label: t('profile'), icon: User },
+  ];
+
   return (
-    <nav className="bg-gradient-to-r from-white via-blue-50 to-purple-50 border-b border-white/50 shadow-lg sticky top-0 z-40 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20 md:h-24">
-          <div className="flex items-center w-full">
-            <div className="flex-shrink-0 flex items-center">
-              <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-[#06C755] via-[#00C300] to-[#06C755] bg-clip-text text-transparent drop-shadow-sm">
-                Miraisei Demo Admin
-              </h1>
-            </div>
-            <div className="hidden sm:ml-8 sm:flex sm:space-x-3 md:space-x-4 flex-1">
-              <NavLink href="/admin" pathname={pathname}>
-                {t('dashboard')}
-              </NavLink>
-              <NavLink href="/admin/orders" pathname={pathname}>
-                {t('orders')}
-              </NavLink>
-              <NavLink href="/admin/menu" pathname={pathname}>
-                {t('menu')}
-              </NavLink>
-              <NavLink href="/admin/categories" pathname={pathname}>
-                {t('categories')}
-              </NavLink>
-              {(user?.role === "admin" || user?.role === "manager") && (
-                <NavLink href="/admin/users" pathname={pathname}>
-                  {t('users')}
-                </NavLink>
-              )}
-              <NavLink href="/admin/profile" pathname={pathname}>
-                {t('profile')}
-              </NavLink>
-            </div>
-            <div className="flex items-center gap-3">
-              {user && (
-                <>
-                  {/* Notification Icon */}
-                  <Link
-                    href="/admin/notifications"
-                    className="relative p-2 text-gray-600 hover:text-[#06C755] transition-colors duration-200 rounded-lg hover:bg-white/50 active:scale-95 touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
-                    aria-label={t('notifications')}
-                  >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                      />
-                    </svg>
-                    {/* Badge - shows unread count */}
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-white shadow-lg">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                        <span className="sr-only">{unreadCount} {t('unreadNotifications')}</span>
-                      </span>
-                    )}
-                  </Link>
-                  <Link
-                    href="/admin/profile"
-                    className="hidden sm:flex items-center gap-2 text-sm text-gray-600 font-medium hover:text-[#06C755] transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-white/50"
-                  >
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#06C755] to-[#00C300] flex items-center justify-center text-white font-bold text-sm shadow-md">
-                      {user.displayName.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-bold">{user.displayName}</span>
-                      <span className="text-xs text-gray-500">{user.role}</span>
-                    </div>
-                  </Link>
-                </>
-              )}
+    <>
+      {/* Mobile Top Bar */}
+      <div className="lg:hidden sticky top-0 z-50 bg-slate-50/90 backdrop-blur-xl border-b border-gray-100 px-4 py-3 flex items-center justify-between shadow-sm">
+        <h1 className="text-xl font-bold bg-gradient-to-r from-[#06C755] to-[#00C300] bg-clip-text text-transparent">
+          Miraisei Admin
+        </h1>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/notifications"
+            className="p-2 text-gray-500 hover:text-[#06C755] relative"
+          >
+            <Bell className="w-6 h-6" />
+            {unreadCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white shadow-sm"></span>
+            )}
+          </Link>
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 text-gray-500"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+      </div>
 
-              {/* Language Switcher */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="p-2 text-gray-600 hover:text-[#06C755] transition-colors duration-200 rounded-lg hover:bg-white/50 active:scale-95 touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center font-bold gap-2"
-                  >
-                    <Globe className="h-5 w-5" />
-                    <span className="hidden sm:inline-block">
-                      {locale === 'en' ? 'EN' : locale === 'ja' ? 'JP' : 'ZH'}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => switchLanguage('en')} className="gap-2">
-                    <span>English</span>
-                    {locale === 'en' && <Check className="h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => switchLanguage('ja')} className="gap-2">
-                    <span>日本語</span>
-                    {locale === 'ja' && <Check className="h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => switchLanguage('zh')} className="gap-2">
-                    <span>中文</span>
-                    {locale === 'zh' && <Check className="h-4 w-4" />}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-40 bg-slate-50/95 backdrop-blur-3xl pt-20 px-6 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="space-y-4">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-4 p-4 rounded-2xl text-lg font-bold transition-all ${pathname === item.href || (item.href !== "/admin" && pathname?.startsWith(item.href))
+                  ? "bg-[#06C755] text-white shadow-lg shadow-[#06C755]/20"
+                  : "text-gray-600 hover:bg-white/80"
+                  }`}
+              >
+                <item.icon className="w-6 h-6" />
+                {item.label}
+              </Link>
+            ))}
+            <div className="pt-6 border-t border-gray-100 flex flex-col gap-4">
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all duration-200 active:scale-95 touch-manipulation min-h-[44px] flex items-center gap-2"
+                className="flex items-center gap-4 p-4 rounded-2xl text-lg font-bold text-red-500 hover:bg-red-50 transition-all"
               >
-                <span>🚪</span>
-                <span className="hidden sm:inline">{t('logout')}</span>
+                <LogOut className="w-6 h-6" />
+                {t('logout')}
               </button>
             </div>
           </div>
         </div>
-      </div>
-      {/* Mobile Navigation */}
-      <div className="sm:hidden border-t border-white/50 bg-gradient-to-b from-blue-50 to-purple-50 backdrop-blur-sm">
-        <div className="px-3 pt-3 pb-4 space-y-2">
-          <MobileNavLink href="/admin" pathname={pathname}>
-            {t('dashboard')}
-          </MobileNavLink>
-          <MobileNavLink href="/admin/orders" pathname={pathname}>
-            {t('orders')}
-          </MobileNavLink>
-          <MobileNavLink href="/admin/menu" pathname={pathname}>
-            {t('menu')}
-          </MobileNavLink>
-          <MobileNavLink href="/admin/categories" pathname={pathname}>
-            {t('categories')}
-          </MobileNavLink>
-          {(user?.role === "admin" || user?.role === "manager") && (
-            <MobileNavLink href="/admin/users" pathname={pathname}>
-              {t('users')}
-            </MobileNavLink>
-          )}
-          <MobileNavLink href="/admin/profile" pathname={pathname}>
-            {t('profile')}
-          </MobileNavLink>
-          <MobileNavLink href="/admin/notifications" pathname={pathname}>
-            🔔 {t('notifications')}
-          </MobileNavLink>
+      )}
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex flex-col w-72 h-screen sticky top-0 left-0 bg-slate-50 border-r border-gray-200/50 z-50 shadow-sm">
+        {/* Sidebar Header */}
+        <div className="p-8 pb-4">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-[#06C755] via-[#00C300] to-[#06C755] bg-clip-text text-transparent drop-shadow-sm">
+            Miraisei Admin
+          </h1>
+          <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-2 px-1">
+            Restaurant Management
+          </p>
+        </div>
+
+        {/* Top Actions Section */}
+        <div className="px-6 py-4 space-y-4 border-b border-gray-100/50 mb-2">
+          {/* User Info */}
           {user && (
             <Link
               href="/admin/profile"
-              className="px-5 py-4 text-sm text-gray-600 font-medium border-t border-white/50 flex items-center gap-3 hover:bg-white/50 transition-colors duration-200"
+              className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-gray-100 hover:shadow-sm hover:border-gray-200 transition-all"
             >
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#06C755] to-[#00C300] flex items-center justify-center text-white font-bold shadow-md">
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#06C755] to-[#00C300] flex items-center justify-center text-white font-bold shadow-sm ring-2 ring-white flex-shrink-0">
                 {user.displayName.charAt(0).toUpperCase()}
               </div>
-              <div className="flex flex-col">
-                <span className="font-bold">{user.displayName}</span>
-                <span className="text-xs text-gray-500">{user.role}</span>
+              <div className="flex flex-col min-w-0">
+                <span className="font-bold text-gray-900 truncate">{user.displayName}</span>
+                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight truncate">{user.role}</span>
               </div>
             </Link>
           )}
 
-          {/* Mobile Language Selection */}
-          <div className="px-5 py-4 border-t border-white/50 space-y-3">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-              {locale === 'en' ? 'Language' : locale === 'ja' ? '言語' : '语言'}
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                onClick={() => switchLanguage('en')}
-                className={`flex-1 py-3 rounded-xl font-bold transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 ${locale === 'en'
-                  ? "bg-gradient-to-r from-[#06C755] to-[#00C300] text-white shadow-md"
-                  : "bg-white text-gray-600 border border-gray-200"
-                  }`}
-              >
-                <span>EN</span>
-              </button>
-              <button
-                onClick={() => switchLanguage('ja')}
-                className={`flex-1 py-3 rounded-xl font-bold transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 ${locale === 'ja'
-                  ? "bg-gradient-to-r from-[#06C755] to-[#00C300] text-white shadow-md"
-                  : "bg-white text-gray-600 border border-gray-200"
-                  }`}
-              >
-                <span>JP</span>
-              </button>
-              <button
-                onClick={() => switchLanguage('zh')}
-                className={`flex-1 py-3 rounded-xl font-bold transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 ${locale === 'zh'
-                  ? "bg-gradient-to-r from-[#06C755] to-[#00C300] text-white shadow-md"
-                  : "bg-white text-gray-600 border border-gray-200"
-                  }`}
-              >
-                <span>ZH</span>
-              </button>
-            </div>
+          <div className="flex items-center justify-between gap-3">
+            {/* Language Switcher */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex-1 h-12 rounded-2xl gap-2 font-bold text-gray-600 bg-white hover:bg-gray-50 border border-gray-100 hover:shadow-sm transition-all">
+                  <Globe className="w-4 h-4 text-[#06C755]" />
+                  <span>{locale === 'en' ? 'EN' : locale === 'ja' ? 'JP' : 'ZH'}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-40 rounded-2xl shadow-xl border-gray-100">
+                <DropdownMenuItem onClick={() => switchLanguage('en')} className="font-medium p-3 rounded-xl gap-2 cursor-pointer">
+                  <span>English</span>
+                  {locale === 'en' && <Check className="w-4 h-4 text-[#06C755]" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => switchLanguage('ja')} className="font-medium p-3 rounded-xl gap-2 cursor-pointer">
+                  <span>日本語</span>
+                  {locale === 'ja' && <Check className="w-4 h-4 text-[#06C755]" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => switchLanguage('zh')} className="font-medium p-3 rounded-xl gap-2 cursor-pointer">
+                  <span>中文</span>
+                  {locale === 'zh' && <Check className="w-4 h-4 text-[#06C755]" />}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Notifications */}
+            <Link
+              href="/admin/notifications"
+              className="h-12 w-12 rounded-2xl bg-white flex items-center justify-center text-gray-500 hover:text-[#06C755] hover:bg-[#06C755]/5 transition-all relative border border-gray-100 hover:shadow-sm"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white border-2 border-white shadow-sm">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </Link>
+
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className="h-12 w-12 rounded-2xl bg-red-50 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-100 hover:shadow-sm"
+              title={t('logout')}
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
           </div>
-
-          <button
-            onClick={handleLogout}
-            className="w-full px-5 py-4 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all duration-200 active:scale-95 touch-manipulation min-h-[56px] flex items-center justify-center gap-2 mt-2"
-          >
-            <span>🚪</span>
-            <span>{t('logout')}</span>
-          </button>
         </div>
-      </div>
-    </nav>
+
+        {/* Sidebar Navigation */}
+        <nav className="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || (item.href !== "/admin" && pathname?.startsWith(item.href));
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`group flex items-center justify-between px-4 py-3.5 rounded-2xl text-sm font-bold transition-all duration-300 ${isActive
+                  ? "bg-[#06C755] text-white shadow-xl shadow-[#06C755]/15"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-white hover:shadow-sm"
+                  }`}
+              >
+                <div className="flex items-center gap-3.5">
+                  <item.icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? "" : "group-hover:scale-110"}`} />
+                  <span>{item.label}</span>
+                </div>
+                {isActive && <ChevronRight className="w-4 h-4" />}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Bottom space */}
+        <div className="p-4 mt-auto">
+          {/* Empty bottom space to allow navigation to stay at the top */}
+        </div>
+      </aside>
+    </>
   );
 }
-
-function NavLink({
-  href,
-  children,
-  pathname,
-}: {
-  href: string;
-  children: React.ReactNode;
-  pathname: string | null;
-}) {
-  const isActive =
-    pathname === href || (href !== "/admin" && pathname?.startsWith(href));
-
-  return (
-    <Link
-      href={href}
-      className={`inline-flex items-center px-4 md:px-5 py-2 md:py-2.5 rounded-xl text-sm md:text-base font-bold transition-all duration-200 touch-manipulation active:scale-95 min-h-[40px] md:min-h-[44px] ${isActive
-        ? "bg-gradient-to-r from-[#06C755] to-[#00C300] text-white shadow-lg active:shadow-xl"
-        : "text-gray-700 active:text-gray-900 active:bg-white/70 backdrop-blur-sm border border-white/50"
-        }`}
-    >
-      {children}
-    </Link>
-  );
-}
-
-function MobileNavLink({
-  href,
-  children,
-  pathname,
-}: {
-  href: string;
-  children: React.ReactNode;
-  pathname: string | null;
-}) {
-  const isActive =
-    pathname === href || (href !== "/admin" && pathname?.startsWith(href));
-
-  return (
-    <Link
-      href={href}
-      className={`block px-5 py-3 rounded-xl text-base font-bold transition-all duration-200 touch-manipulation active:scale-95 min-h-[48px] flex items-center ${isActive
-        ? "bg-gradient-to-r from-[#06C755] to-[#00C300] text-white shadow-lg active:shadow-xl"
-        : "text-gray-700 active:bg-white active:text-gray-900"
-        }`}
-    >
-      {children}
-    </Link>
-  );
-}
-
-
