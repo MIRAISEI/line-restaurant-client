@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { ICartItem } from "@/types/cart-types";
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
+import AddonSelector from "./AddonSelector";
 
 interface ItemDetails {
     isOpen: boolean;
@@ -17,28 +18,34 @@ interface ItemDetails {
 const MenuItemDetail: React.FC<ItemDetails> = ({ isOpen, isClose, item }) => {
     const t = useTranslations('Common');
     const [dishQuantity, setDishQuantity] = useState(1);
-    const [amount, setAmount] = useState(item.price);
+    const [selectedAddons, setSelectedAddons] = useState<ICartItem[]>([]);
+    const [isAddonSelectorOpen, setIsAddonSelectorOpen] = useState(false);
     const { dispatch } = useCart();
     const router = useRouter();
 
     if (!isOpen) return null;
+
+    // Calculate total amount including addons
+    const addonTotal = selectedAddons.reduce((sum, addon) => sum + (addon.price * addon.quantity), 0);
+    const totalAmount = (item.price + addonTotal) * dishQuantity;
+
     //increase quntity
     const IncreaseQuantity = () => {
         setDishQuantity(prev => prev + 1);
-        setAmount(prev => prev + item.price);
     };
     //decrease quantity
     const DecreaseQuantity = () => {
         setDishQuantity(prev => prev > 1 ? prev - 1 : 1);
-        setAmount(prev => dishQuantity > 1 ? prev - item.price : item.price);
     };
 
     // Add item to cart
     const handleAddToCart = () => {
         const cartItem: ICartItem = {
             ...item,
+            cartItemId: `${item.id}-${Date.now()}`,
             quantity: dishQuantity,
-            totalAmount: amount
+            totalAmount: totalAmount,
+            addons: selectedAddons.length > 0 ? selectedAddons : undefined
         };
         dispatch({ type: "ADD_ITEM", payload: cartItem });
         isClose(); // Close the modal after adding
@@ -48,8 +55,10 @@ const MenuItemDetail: React.FC<ItemDetails> = ({ isOpen, isClose, item }) => {
     const handleCheckout = () => {
         const cartItem: ICartItem = {
             ...item,
+            cartItemId: `${item.id}-${Date.now()}`,
             quantity: dishQuantity,
-            totalAmount: amount
+            totalAmount: totalAmount,
+            addons: selectedAddons.length > 0 ? selectedAddons : undefined
         };
         dispatch({ type: "ADD_ITEM", payload: cartItem });
         isClose(); // Close the modal
@@ -79,6 +88,33 @@ const MenuItemDetail: React.FC<ItemDetails> = ({ isOpen, isClose, item }) => {
                                 <h3 className="text-primary font-bold text-2xl my-3">{item.title}</h3>
 
                                 <p>{item.description}</p>
+
+                                {/* Addons Section */}
+                                <div className="mt-6 border-t pt-4">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <h4 className="font-bold text-lg">{t('addons') || 'Addons'}</h4>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setIsAddonSelectorOpen(true)}
+                                        >
+                                            {selectedAddons.length > 0 ? (t('editAddons') || 'Edit Addons') : (t('addAddons') || 'Add Addons')}
+                                        </Button>
+                                    </div>
+
+                                    {selectedAddons.length > 0 ? (
+                                        <div className="space-y-2">
+                                            {selectedAddons.map((addon) => (
+                                                <div key={addon.id} className="flex justify-between text-sm">
+                                                    <span>{addon.title} x{addon.quantity}</span>
+                                                    <span>{addon.price * addon.quantity} &yen;</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-gray-400 italic">{t('noAddonsSelected') || 'No addons selected'}</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -104,7 +140,7 @@ const MenuItemDetail: React.FC<ItemDetails> = ({ isOpen, isClose, item }) => {
                                     </button>
                                 </div>
                                 <span className="flex mt-1 text-white font-semibold">
-                                    {t('amount')}: <span className="ml-1 text-white font-bold">{amount} &yen;</span>
+                                    {t('amount')}: <span className="ml-1 text-white font-bold">{totalAmount} &yen;</span>
                                 </span>
                             </div>
                             <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
@@ -128,6 +164,15 @@ const MenuItemDetail: React.FC<ItemDetails> = ({ isOpen, isClose, item }) => {
                     className="flex absolute w-8 h-8 top-[-15px] right-[-15px] bg-primary text-white p-1 text-[16px] items-center justify-center rounded-[50%] cursor-pointer hover:bg-red-600 transition-colors z-10"
                     onClick={isClose}
                 >X</span>
+
+                {isAddonSelectorOpen && (
+                    <AddonSelector
+                        menuItemId={item.id}
+                        initialAddons={selectedAddons}
+                        onSaveAddons={setSelectedAddons}
+                        onClose={() => setIsAddonSelectorOpen(false)}
+                    />
+                )}
             </div>
         </div>
     )

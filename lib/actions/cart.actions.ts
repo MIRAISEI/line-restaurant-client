@@ -3,9 +3,7 @@
 import prisma from "@/lib/prisma"
 import { ICartItem } from "@/types/cart-types"
 
-/**
- * Fetch the cart for a specific user.
- */
+
 export async function getCart(userId: string): Promise<ICartItem[] | null> {
     try {
         const cart = await prisma.cart.findUnique({
@@ -21,8 +19,8 @@ export async function getCart(userId: string): Promise<ICartItem[] | null> {
 
         if (!cart) return null
 
-        // Map Prisma objects back to ICartItem
         return cart.items.map((item: any): ICartItem => ({
+            cartItemId: item.id,
             id: item.menuItemId,
             title: item.menuItem.nameEn,
             price: item.price,
@@ -40,28 +38,22 @@ export async function getCart(userId: string): Promise<ICartItem[] | null> {
     }
 }
 
-/**
- * Synchronize the client-side cart with the database.
- * This implementation overwrites the existing cart in the DB.
- */
+
 export async function syncCart(userId: string, items: ICartItem[]) {
     try {
-        // 1. Find or create the cart
+
         const cart = await prisma.cart.upsert({
             where: { userId },
             update: {},
             create: { userId },
         })
 
-        // 2. Delete existing items (simple overwrite strategy)
         await prisma.cartItem.deleteMany({
             where: { cartId: cart.id },
         })
 
-        // 3. Create new items
         if (items.length > 0) {
-            // Map ICartItem to Prisma CartItem format
-            // Note: We use JSON.stringify for addons as they are recursive
+
             await prisma.cartItem.createMany({
                 data: items.map((item) => ({
                     cartId: cart.id,
@@ -81,9 +73,7 @@ export async function syncCart(userId: string, items: ICartItem[]) {
     }
 }
 
-/**
- * Clear the cart for a specific user.
- */
+
 export async function clearCart(userId: string) {
     try {
         const cart = await prisma.cart.findUnique({

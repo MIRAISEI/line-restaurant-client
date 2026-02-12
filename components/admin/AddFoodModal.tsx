@@ -33,6 +33,7 @@ export default function AddFoodModal({
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categorySearch, setCategorySearch] = useState("");
+  const [addonSearch, setAddonSearch] = useState("");
 
   // Fetch categories from API
   useEffect(() => {
@@ -65,8 +66,25 @@ export default function AddFoodModal({
 
   // Get all addon items for selection
   const addonItems = useMemo(() => {
-    return menuItems.filter((item) => item.isAddon && item.isActive);
-  }, [menuItems]);
+    return menuItems.filter(
+      (item) =>
+        item.isAddon &&
+        item.isActive &&
+        (item.nameEn.toLowerCase().includes(addonSearch.toLowerCase()) ||
+          item.nameJp.toLowerCase().includes(addonSearch.toLowerCase()))
+    );
+  }, [menuItems, addonSearch]);
+
+  // Group filtered addons by category
+  const groupedAddons = useMemo(() => {
+    const groups: Record<string, MenuItem[]> = {};
+    addonItems.forEach(addon => {
+      const cat = addon.category || "Other";
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(addon);
+    });
+    return groups;
+  }, [addonItems]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -340,8 +358,8 @@ export default function AddFoodModal({
                         type="button"
                         onClick={() => setFormData({ ...formData, category: category.name })}
                         className={`text-xs px-2 py-1 rounded-md transition-colors ${formData.category === category.name
-                            ? 'bg-[#31a354] text-white'
-                            : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                          ? 'bg-[#31a354] text-white'
+                          : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                           }`}
                       >
                         {category.name}
@@ -443,54 +461,116 @@ export default function AddFoodModal({
             </div>
 
             {/* Allowed Addons Selection */}
-            {!formData.isAddon && addonItems.length > 0 && (
-              <div>
-                <label className="block text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">
-                  {t('allowedAddons')} <span className="text-gray-400 text-xs">({t('selectAddons')})</span>
-                </label>
-                <div className="max-h-48 overflow-y-auto border-2 border-gray-200 rounded-xl p-4 bg-white/80">
-                  {addonItems.length === 0 ? (
-                    <p className="text-gray-500 text-sm">{t('noAddonsAvailable')} {t('createAddonsFirst')}</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {addonItems.map((addon) => (
-                        <label
-                          key={addon._id}
-                          className="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={formData.allowedAddons.includes(addon._id)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setFormData({
-                                  ...formData,
-                                  allowedAddons: [...formData.allowedAddons, addon._id],
-                                });
-                              } else {
-                                setFormData({
-                                  ...formData,
-                                  allowedAddons: formData.allowedAddons.filter(
-                                    (id) => id !== addon._id
-                                  ),
-                                });
-                              }
-                            }}
-                            className="w-5 h-5 rounded border-2 border-gray-300 text-[#31a354] focus:ring-2 focus:ring-[#31a354]/20 focus:ring-offset-0 cursor-pointer"
-                          />
-                          <span className="text-sm font-medium text-gray-900 flex-1">
-                            {locale === 'ja' ? addon.nameJp : addon.nameEn} ({locale === 'ja' ? addon.nameEn : addon.nameJp})
-                          </span>
-                          <span className="text-sm text-gray-600">¥{addon.price.toLocaleString()}</span>
-                        </label>
-                      ))}
+            {menuItems.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <label className="block text-sm font-bold text-gray-600 uppercase tracking-wide">
+                    {t('allowedAddons')} <span className="text-gray-400 text-xs">({t('selectAddons')})</span>
+                  </label>
+
+                  {/* Addon Search */}
+                  <div className="relative w-full sm:w-64">
+                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </span>
+                    <input
+                      type="text"
+                      placeholder={t('search') || "Search addons..."}
+                      value={addonSearch}
+                      onChange={(e) => setAddonSearch(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 text-sm border-2 border-gray-200 rounded-xl focus:border-[#31a354] focus:outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="max-h-72 overflow-y-auto border-2 border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm divide-y divide-gray-100">
+                  {Object.keys(groupedAddons).length === 0 ? (
+                    <div className="p-8 text-center">
+                      <p className="text-gray-500 font-medium">{t('noAddonsAvailable')}</p>
+                      <p className="text-gray-400 text-sm mt-1">{t('tryAdjustingFilters') || "No addons match your search"}</p>
                     </div>
+                  ) : (
+                    Object.entries(groupedAddons).map(([category, addons]) => (
+                      <div key={category} className="p-4">
+                        <h5 className="text-xs font-bold text-[#31a354] uppercase tracking-widest mb-3 flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#31a354]"></span>
+                          {category}
+                        </h5>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {addons.map((addon) => (
+                            <label
+                              key={addon._id}
+                              className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer hover:shadow-md ${formData.allowedAddons.includes(addon._id || "")
+                                ? "border-[#31a354] bg-[#31a354]/5 shadow-sm"
+                                : "border-gray-100 bg-white hover:border-gray-200"
+                                }`}
+                            >
+                              <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                                <Image
+                                  src={addon.imageUrl || "/placeholder.png"}
+                                  alt={addon.nameEn}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-bold text-gray-900 truncate">
+                                  {locale === 'ja' ? addon.nameJp : addon.nameEn}
+                                </p>
+                                <p className="text-xs text-gray-500 font-medium">
+                                  ¥{addon.price.toLocaleString()}
+                                </p>
+                              </div>
+                              <input
+                                type="checkbox"
+                                checked={formData.allowedAddons.includes(addon._id || "")}
+                                onChange={(e) => {
+                                  const id = addon._id || "";
+                                  if (e.target.checked) {
+                                    setFormData({
+                                      ...formData,
+                                      allowedAddons: [...formData.allowedAddons, id],
+                                    });
+                                  } else {
+                                    setFormData({
+                                      ...formData,
+                                      allowedAddons: formData.allowedAddons.filter((aid) => aid !== id),
+                                    });
+                                  }
+                                }}
+                                className="w-5 h-5 rounded border-2 border-gray-300 text-[#31a354] focus:ring-2 focus:ring-[#31a354]/20 focus:ring-offset-0"
+                              />
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    ))
                   )}
                 </div>
+
                 {formData.allowedAddons.length > 0 && (
-                  <p className="text-xs text-gray-500 mt-2">
-                    {t('addonsSelected', { count: formData.allowedAddons.length })}
-                  </p>
+                  <div className="flex items-center justify-between px-2">
+                    <div className="flex -space-x-2">
+                      {formData.allowedAddons.slice(0, 5).map((id) => {
+                        const addon = menuItems.find(mi => mi._id === id);
+                        return (
+                          <div key={id} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden bg-gray-100 shadow-sm relative">
+                            <Image src={addon?.imageUrl || ""} alt="" fill className="object-cover" />
+                          </div>
+                        );
+                      })}
+                      {formData.allowedAddons.length > 5 && (
+                        <div className="w-8 h-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-600 shadow-sm">
+                          +{formData.allowedAddons.length - 5}
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs font-bold text-[#31a354]">
+                      {t('addonsSelected', { count: formData.allowedAddons.length })}
+                    </p>
+                  </div>
                 )}
               </div>
             )}

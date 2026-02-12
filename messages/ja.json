@@ -69,7 +69,11 @@
         "addToCart": "カートに追加",
         "checkout": "チェックアウト",
         "orderDish": "注文する",
-        "close": "閉じる"
+        "close": "閉じる",
+        "addons": "追加アイテム",
+        "addAddons": "追加アイテムを追加",
+        "editAddons": "追加アイテムを編集",
+        "noAddonsSelected": "追加アイテムが選択されていません"
     },
     "Login": {
         "title": "ようこそ",

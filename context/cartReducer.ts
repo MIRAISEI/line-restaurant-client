@@ -21,7 +21,16 @@ export const cartReducer = (state: CartState, action: CartAction): CartState => 
     switch (action.type) {
         case "ADD_ITEM": {
             const newItem = action.payload;
-            const existingItemIndex = state.items.findIndex(item => item.id === newItem.id);
+            // Generate a unique cartItemId if not already present
+            if (!newItem.cartItemId) {
+                newItem.cartItemId = `${newItem.id}-${Date.now()}`;
+            }
+
+            // We check if an item with the same cartItemId exists (usually shouldn't on ADD_ITEM unless it's a re-add)
+            // Or better: on ADD_ITEM from the menu, we usually want a new entry if we want to support 
+            // different addons for the same product.
+            const existingItemIndex = state.items.findIndex(item => item.cartItemId === newItem.cartItemId);
+
             if (existingItemIndex > -1) {
                 const updatedItems = [...state.items];
                 const existingItem = updatedItems[existingItemIndex];
@@ -46,14 +55,14 @@ export const cartReducer = (state: CartState, action: CartAction): CartState => 
 
         }
         case "UPDATE_QUANTITY": {
-            const { id, newQuantity } = action.payload;
+            const { cartItemId, newQuantity } = action.payload;
             if (newQuantity < 1) {
-                return cartReducer(state, { type: "REMOVE_ITEM", payload: { id } });
+                return cartReducer(state, { type: "REMOVE_ITEM", payload: { cartItemId } });
             }
 
             const updatedItems = state.items.map(item =>
 
-                (item.id === id) ? {
+                (item.cartItemId === cartItemId) ? {
                     ...item,
                     quantity: newQuantity,
                     totalAmount: item.price * newQuantity
@@ -67,17 +76,17 @@ export const cartReducer = (state: CartState, action: CartAction): CartState => 
 
         }
         case "REMOVE_ITEM": {
-            const { id } = action.payload;
-            const updatedItems = state.items.filter(item => item.id !== id);
+            const { cartItemId } = action.payload;
+            const updatedItems = state.items.filter(item => item.cartItemId !== cartItemId);
             return {
                 items: updatedItems,
                 ...calculateTotals(updatedItems)
             }
         }
         case "ADD_ADDON": {
-            const { parentItemId, addon } = action.payload;
+            const { cartItemId, addon } = action.payload;
             const updatedItems = state.items.map(item => {
-                if (item.id === parentItemId) {
+                if (item.cartItemId === cartItemId) {
                     const existingAddons = item.addons || [];
                     const existingAddonIndex = existingAddons.findIndex(a => a.id === addon.id);
 
@@ -110,9 +119,9 @@ export const cartReducer = (state: CartState, action: CartAction): CartState => 
             };
         }
         case "REMOVE_ADDON": {
-            const { parentItemId, addonId } = action.payload;
+            const { cartItemId, addonId } = action.payload;
             const updatedItems = state.items.map(item => {
-                if (item.id === parentItemId && item.addons) {
+                if (item.cartItemId === cartItemId && item.addons) {
                     return {
                         ...item,
                         addons: item.addons.filter(addon => addon.id !== addonId)
@@ -127,13 +136,13 @@ export const cartReducer = (state: CartState, action: CartAction): CartState => 
             };
         }
         case "UPDATE_ADDON_QUANTITY": {
-            const { parentItemId, addonId, newQuantity } = action.payload;
+            const { cartItemId, addonId, newQuantity } = action.payload;
             if (newQuantity < 1) {
-                return cartReducer(state, { type: "REMOVE_ADDON", payload: { parentItemId, addonId } });
+                return cartReducer(state, { type: "REMOVE_ADDON", payload: { cartItemId, addonId } });
             }
 
             const updatedItems = state.items.map(item => {
-                if (item.id === parentItemId && item.addons) {
+                if (item.cartItemId === cartItemId && item.addons) {
                     return {
                         ...item,
                         addons: item.addons.map(addon =>

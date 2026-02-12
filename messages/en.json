@@ -69,7 +69,11 @@
         "addToCart": "Add to Cart",
         "checkout": "Checkout",
         "orderDish": "Order Dish",
-        "close": "Close"
+        "close": "Close",
+        "addons": "Addons",
+        "addAddons": "Add Addons",
+        "editAddons": "Edit Addons",
+        "noAddonsSelected": "No addons selected"
     },
     "Login": {
         "title": "Welcome",
