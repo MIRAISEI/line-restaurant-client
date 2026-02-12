@@ -347,9 +347,16 @@ export function getAuthHeaders(): HeadersInit {
 }
 
 // Order API functions - Fetch from MongoDb
-export async function getOrders(): Promise<Order[]> {
+export async function getOrders(startDate?: string, endDate?: string): Promise<Order[]> {
   try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/api/orders`, {
+    const queryParams = new URLSearchParams();
+    if (startDate) queryParams.append('startDate', startDate);
+    if (endDate) queryParams.append('endDate', endDate);
+
+    const queryString = queryParams.toString();
+    const url = `${API_BASE_URL}/api/orders${queryString ? `?${queryString}` : ''}`;
+
+    const response = await fetchWithTimeout(url, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
