@@ -22,7 +22,12 @@ export async function POST(req: Request) {
     const bodyJson = await req.json().catch(() => ({}));
     const amount = Number(bodyJson.amount || 10);
     const description = bodyJson.description || "Next.js PayPay sandbox test";
-
+    const orderId = bodyJson.orderid;
+    console.log("Creating PayPay code with payload:", {
+      amount,
+      description,
+      orderId,
+    });
     const merchantPaymentId = `mp_${Date.now()}`;
     const path = "/v2/codes";
     const baseUrl = getBaseUrl();
@@ -35,7 +40,7 @@ export async function POST(req: Request) {
       isAuthorization: false,
       redirectUrl: `${baseUrl}/paypay/result?merchantPaymentId=${encodeURIComponent(
         merchantPaymentId
-      )}`,
+      )}&orderId=${encodeURIComponent(orderId)}`,
       redirectType: "WEB_LINK",
       userAgent:
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",

@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useTranslations, useLocale } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/routing';
 import { Button } from "./ui/button";
+import Link from "next/link";
 
 const Header = () => {
     const t = useTranslations('Header');
@@ -29,9 +30,9 @@ const Header = () => {
                 <div className="inner-wrapper flex-row justify-between">
                     <div className="flex gap-3 items-center">
                         <div className="logo-wrapper">
-                            <Image src="/logo.png" width={80} height={40} alt={t('title')} />
+                            <Link href="/"><Image src="/logo.png" width={180} height={60} alt={t('title')} /></Link>
                         </div>
-                        <h1 className="text-2xl md:text-3xl text-[#ffdf93] font-bold leading-0">{t('title')}</h1>
+                        {/*<h1 className="text-2xl md:text-3xl text-[#ffdf93] font-bold leading-0">{t('title')}</h1>*/}
                     </div>
                     <div className="flex items-center gap-4">
                         {/* Language Switcher */}

@@ -6,6 +6,7 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const merchantPaymentId = searchParams.get("merchantPaymentId");
+    const orderId = searchParams.get("orderId");
 
     if (!merchantPaymentId) {
       return NextResponse.json(
@@ -60,7 +61,7 @@ export async function GET(req: Request) {
 
     const rawData = data?.data || {};
     const paymentState = rawData.status || "UNKNOWN";
-
+    console.log("adada", data);
     return NextResponse.json({
       payPayStatus: paypayRes.status,
       body: {
@@ -70,6 +71,7 @@ export async function GET(req: Request) {
         currency: rawData.amount?.currency ?? null,
         merchantPaymentId: rawData.merchantPaymentId ?? merchantPaymentId,
         raw: data, // keep the raw response for debugging
+        orderid: orderId
       },
     }, { status: 200 });
 

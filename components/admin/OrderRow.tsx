@@ -5,6 +5,7 @@ import StatusBadge from "./StatusBadge";
 import StatusSelect from "./StatusSelect";
 import PayPayPaymentModal from "./PayPayPaymentModal";
 
+
 interface OrderRowProps {
   order: Order;
   onStatusChange: (orderId: string, newStatus: Order["status"]) => void;
@@ -54,6 +55,56 @@ export default function OrderRow({
         ? "bg-yellow-100 text-yellow-800 border-yellow-300"
         : "bg-gray-100 text-gray-800 border-gray-300";
 
+
+
+  //PAYPAY START
+  const [loading, setLoading] = useState(false);
+  const [qrImage, setQrImage] = useState<string | null>(null);
+
+  const payWithPayPay = async () => {
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/paypay/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          amount: order.total,
+          description: "Checkout order payment"
+        })
+      });
+
+        const data = await res.json();
+        const deeplink = data?.body?.data?.url;
+        console.log("aaaa",data);
+
+    if (!deeplink) {
+      alert("PayPay did not return a deeplink");
+      return;
+    }
+
+    // Generate QR image from deeplink
+   // const qrUrl = await QRCode.toDataURL(deeplink);
+    setQrImage(deeplink);
+
+      // Automatic redirect to PayPay
+     // window.location.href = url;
+
+
+    } catch (err) {
+      console.error("PayPay error", err);
+      alert("Payment request failed");
+    }
+
+    setLoading(false);
+  };
+    //END PAYPAY
+
+
+
+
   const handlePaymentSelect = async (value: string) => {
     if (isUpdatingPayment) return;
 
@@ -61,6 +112,7 @@ export default function OrderRow({
 
     if (value === "paypay_complete") {
       setIsPaymentModalOpen(true);
+      payWithPayPay();
       return;
     }
 
@@ -182,7 +234,10 @@ export default function OrderRow({
           setIsPaymentModalOpen(false);
           setPaymentSelectValue("");
         }}
+        url={qrImage!}
       />
+     
+
     </>
   );
 }

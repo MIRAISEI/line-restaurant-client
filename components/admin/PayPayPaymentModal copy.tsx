@@ -44,6 +44,7 @@ export default  function PayPayPaymentModal({
       if (!url) return;
       try {
         const qrUrlNew = await QRCode.toDataURL(url);
+        console.log("QR generated:", url);
         setQrImage(qrUrlNew);
       } catch (error) {
         console.error("Failed to generate QR code:", error);
@@ -61,7 +62,7 @@ export default  function PayPayPaymentModal({
 
     let cancelled = false;
     async function fetchQr() {
-      if (!url) {
+      if (!requestUrl) {
         setQrError("PayPay QR endpoint is not configured. Set NEXT_PUBLIC_PAYPAY_QR_ENDPOINT.");
         setQrLoading(false);
         return;
@@ -71,13 +72,24 @@ export default  function PayPayPaymentModal({
         setQrLoading(true);
         setQrError(null);
         setImageLoadError(false);
-       
-        if (!url) {
+        const res = await fetch(requestUrl);
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || `QR request failed (${res.status})`);
+        }
+        const data = await res.json();
+        // Prioritize qrUrl (the actual QR code image URL) over paymentUrl (the payment page URL)
+        const backendUrl =
+          data?.qrUrl ||
+          data?.paypayQrUrl ||
+          data?.paypayQrCode ||
+          data?.qrCodeUrl ||
+          data?.url;
+        if (!backendUrl) {
           throw new Error("QR URL missing in backend response.");
         }
         if (!cancelled) {
-          const qrUrlNew = await QRCode.toDataURL(url);
-          setQrImage(qrUrlNew);
+          setQrUrl(backendUrl);
           setImageLoadError(false);
         }
       } catch (error) {
@@ -117,9 +129,12 @@ export default  function PayPayPaymentModal({
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-100 flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-extrabold text-gray-900">Complete PayPay Payment</h2>
+            <h2 className="text-xl font-extrabold text-gray-900">Complete PayPay Payment {url}</h2>
             <h2 className="text-center font-semibold mb-3">Scan with PayPay</h2>
            
+                         {qrImage && (
+                           <img src={qrImage} alt="PayPay QR" className="w-20 h-auto" />
+                         )}
             <p className="text-sm text-gray-600 mt-1">
               Confirm that PayPay payment was completed at the counter.
             </p>
@@ -172,15 +187,36 @@ export default  function PayPayPaymentModal({
                 <div className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
                 Loading PayPay QR...
               </div>
-            )  : qrImage ? (
-              <div className="flex flex-col items-center justify-center space-y-3">
-                
-                  <div className="inline-block bg-white p-1 rounded-xl border border-gray-200 shadow-sm">
+            ) : qrError ? (
+              <p className="text-sm text-red-600">
+                {qrError}
+              </p>
+            ) : qrUrl ? (
+              <div className="space-y-3">
+                {imageLoadError ? (
+                  <div className="py-6 text-sm text-red-600">
+                    <p className="font-semibold mb-2">Failed to load QR code image</p>
+                    <p className="text-xs text-gray-500">The QR code URL may be invalid or blocked.</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImageLoadError(false);
+                        setQrUrl(null);
+                        setQrError(null);
+                        setRetryKey((prev) => prev + 1);
+                      }}
+                      className="mt-3 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : (
+                  <div className="inline-block bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={qrImage}
+                      src={url}
                       alt="PayPay QR Code"
-                      className="w-28 h-28 object-contain"
+                      className="w-48 h-48 object-contain"
                       onError={() => {
                         setImageLoadError(true);
                         console.error("Failed to load QR code image from:", qrUrl);
@@ -190,10 +226,10 @@ export default  function PayPayPaymentModal({
                       }}
                     />
                   </div>
-                
+                )}
                 {!imageLoadError && (
                   <a
-                    href={url}
+                    href={qrUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#ff6b35] hover:bg-[#e55f2f] transition-colors"

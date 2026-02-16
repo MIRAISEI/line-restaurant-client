@@ -26,7 +26,7 @@ export default function CategorySelector({
     const locale = useLocale();
 
     return (
-        <div className="flex overflow-x-auto pb-4 gap-4 no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">
+        <div className="flex overflow-x-auto pb-4 pt-3 gap-4 no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">
             {categories.map((category) => {
                 // Priority: 1. DB localized name, 2. JSON translation, 3. Original name
                 const dbName = locale === 'ja' ? category.nameJp : category.nameEn;
@@ -64,7 +64,7 @@ export default function CategorySelector({
                             )}
                         </div>
                         <span className={cn(
-                            "text-sm font-medium transition-colors duration-300",
+                            "text-sm font-medium transition-colors duration-300 w-[90%] leading-4",
                             selectedCategory === category.id ? "text-primary font-bold" : "text-muted-foreground"
                         )}>
                             {displayName}

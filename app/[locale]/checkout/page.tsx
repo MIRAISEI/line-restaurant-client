@@ -84,13 +84,6 @@ function CheckoutPage() {
     // PayPay will be handled by the modal
     await createOrder();
 
-    if (paymentMethod === "paypay") {
-      await directPaypay({ 
-        orderid: createdOrderId!, 
-        amount: totalCartAmount, 
-        description: `Order payment for table ${createdOrderId!}` 
-      });
-    }
     
   };
 
@@ -158,7 +151,13 @@ function CheckoutPage() {
       setCreatedOrderId(orderData.orderId);
 
       // Clear cart and redirect
-      if (paymentMethod !== "paypay") {
+      if (paymentMethod === "paypay") { 
+        await directPaypay({
+          orderid: orderData.orderId, 
+          amount: totalCartAmount, 
+          description: `Payment of order ${orderData.orderId}` 
+        });
+      } else {
         dispatch({ type: "CLEAR_CART" });
         const successUrl = `/checkout/success?orderId=${orderData.orderId}&payment=${paymentMethod}&status=${orderData.paymentStatus || "pending"}`;
         router.push(successUrl);
