@@ -15,7 +15,7 @@ function CartContent() {
     const searchParams = useSearchParams();
     const tableFromQr = searchParams.get("table") || searchParams.get("tableNumber");
     const { items, totalCartAmount, dispatch } = useCart();
-    const [selectedItemForAddons, setSelectedItemForAddons] = useState<string | null>(null);
+    const [selectedItemForAddons, setSelectedItemForAddons] = useState<string | null>(null); // This is now cartItemId
 
     if (items.length === 0) {
         return (
@@ -46,7 +46,7 @@ function CartContent() {
 
                             return (
                                 <div
-                                    key={item.id}
+                                    key={item.cartItemId}
                                     className="bg-white rounded-lg shadow-md p-4 border border-gray-200"
                                 >
                                     <div className="flex gap-4">
@@ -76,7 +76,7 @@ function CartContent() {
                                                         if (item.quantity > 1) {
                                                             dispatch({
                                                                 type: "UPDATE_QUANTITY",
-                                                                payload: { id: item.id, newQuantity: item.quantity - 1 },
+                                                                payload: { cartItemId: item.cartItemId, newQuantity: item.quantity - 1 },
                                                             });
                                                         }
                                                     }}
@@ -91,7 +91,7 @@ function CartContent() {
                                                     onClick={() => {
                                                         dispatch({
                                                             type: "UPDATE_QUANTITY",
-                                                            payload: { id: item.id, newQuantity: item.quantity + 1 },
+                                                            payload: { cartItemId: item.cartItemId, newQuantity: item.quantity + 1 },
                                                         });
                                                     }}
                                                     className="w-8 h-8 rounded-full bg-primary text-white hover:bg-primary/90 flex items-center justify-center font-bold"
@@ -123,7 +123,7 @@ function CartContent() {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    onClick={() => setSelectedItemForAddons(item.id)}
+                                                    onClick={() => setSelectedItemForAddons(item.cartItemId)}
                                                     className="text-xs flex-1 min-w-[100px]"
                                                 >
                                                     {item.addons && item.addons.length > 0 ? t('editAddons') : t('addAddons')}
@@ -134,7 +134,7 @@ function CartContent() {
                                                     onClick={() => {
                                                         dispatch({
                                                             type: "REMOVE_ITEM",
-                                                            payload: { id: item.id },
+                                                            payload: { cartItemId: item.cartItemId },
                                                         });
                                                     }}
                                                     className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 flex-1 min-w-[100px]"
@@ -158,7 +158,7 @@ function CartContent() {
                                 {items.map((item) => {
                                     const itemTotal = item.totalAmount + (item.addons?.reduce((sum, addon) => sum + addon.totalAmount, 0) || 0);
                                     return (
-                                        <div key={item.id} className="flex justify-between text-sm">
+                                        <div key={item.cartItemId} className="flex justify-between text-sm">
                                             <span className="text-gray-600">
                                                 {item.title} × {item.quantity}
                                             </span>
@@ -210,7 +210,7 @@ function CartContent() {
                 {/* Addon Selector Modal */}
                 {selectedItemForAddons && (
                     <AddonSelector
-                        parentItemId={selectedItemForAddons}
+                        cartItemId={selectedItemForAddons}
                         onClose={() => setSelectedItemForAddons(null)}
                     />
                 )}

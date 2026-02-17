@@ -36,20 +36,20 @@ function ConditionalCartDrawer() {
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <UIProvider>
-      <CartProvider>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <LiffProvider>
-            <AuthProvider>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        <LiffProvider>
+          <AuthProvider>
+            <CartProvider>
               <React.Suspense fallback={null}>
                 <TableNumberCapture />
               </React.Suspense>
               <ConditionalHeader />
               {children}
               <ConditionalCartDrawer />
-            </AuthProvider>
-          </LiffProvider>
-        </ThemeProvider>
-      </CartProvider>
+            </CartProvider>
+          </AuthProvider>
+        </LiffProvider>
+      </ThemeProvider>
     </UIProvider>
   );
 }

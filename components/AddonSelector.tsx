@@ -3,15 +3,25 @@
 import { useState, useEffect, useMemo } from "react";
 import { useCart } from "@/context/CartContext";
 import { IMenuItem } from "@/types/menu-types";
+import { ICartItem } from "@/types/cart-types";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 
 interface AddonSelectorProps {
-  parentItemId: string;
+  cartItemId?: string; // Optional: for existing cart items
+  menuItemId?: string; // Optional: for items not yet in cart
+  initialAddons?: ICartItem[]; // Optional: for standalone mode
+  onSaveAddons?: (addons: ICartItem[]) => void; // Optional: for standalone mode
   onClose: () => void;
 }
 
-export default function AddonSelector({ parentItemId, onClose }: AddonSelectorProps) {
+export default function AddonSelector({
+  cartItemId,
+  menuItemId,
+  initialAddons,
+  onSaveAddons,
+  onClose
+}: AddonSelectorProps) {
   const t = useTranslations('AddonSelector');
   const locale = useLocale();
   const { items, dispatch } = useCart();
@@ -19,56 +29,49 @@ export default function AddonSelector({ parentItemId, onClose }: AddonSelectorPr
   const [loading, setLoading] = useState(true);
   const [selectedAddons, setSelectedAddons] = useState<Map<string, number>>(new Map());
 
-  // Get existing addons for this item - memoized to prevent infinite loops
-  const parentItem = useMemo(() =>
-    items.find(item => item.id === parentItemId),
-    [items, parentItemId]
-  );
+  // Get current parent item ID
+  const parentId = useMemo(() => {
+    if (cartItemId) {
+      return items.find(item => item.cartItemId === cartItemId)?.id || '';
+    }
+    return menuItemId || '';
+  }, [cartItemId, menuItemId, items]);
 
-  const existingAddons = useMemo(() =>
-    parentItem?.addons || [],
-    [parentItem?.addons]
-  );
-
-  // Initialize selected addons only when parentItemId changes
+  // Initialize selected addons
   useEffect(() => {
-    // Get current parent item and its addons
-    const currentParentItem = items.find(item => item.id === parentItemId);
-    const currentExistingAddons = currentParentItem?.addons || [];
-
-    // Initialize selected addons from existing addons
     const initialSelected = new Map<string, number>();
-    currentExistingAddons.forEach(addon => {
-      initialSelected.set(addon.id, addon.quantity);
-    });
+
+    if (cartItemId) {
+      const currentParentItem = items.find(item => item.cartItemId === cartItemId);
+      const currentExistingAddons = currentParentItem?.addons || [];
+      currentExistingAddons.forEach(addon => {
+        initialSelected.set(addon.id, addon.quantity);
+      });
+    } else if (initialAddons) {
+      initialAddons.forEach(addon => {
+        initialSelected.set(addon.id, addon.quantity);
+      });
+    }
+
     setSelectedAddons(initialSelected);
-  }, [parentItemId, items]); // Depend on parentItemId and items
+  }, [cartItemId, initialAddons, items]);
 
   // Fetch addon-eligible items
   useEffect(() => {
     const fetchAddons = async () => {
+      if (!parentId) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       try {
         const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
-        // Pass parentItemId as query parameter to filter addons
-        const url = `${apiBaseUrl}/api/menu/addons${parentItemId ? `?parentItemId=${parentItemId}` : ''}`;
+        const url = `${apiBaseUrl}/api/menu/addons?parentItemId=${parentId}`;
         const response = await fetch(url);
         if (response.ok) {
           const data = await response.json();
-          // Map API response to IMenuItem format
-          interface ApiMenuItem {
-            _id?: string;
-            id?: string;
-            nameEn?: string;
-            nameJp?: string;
-            price?: number;
-            imageUrl?: string;
-            category?: string;
-            subcategory?: string | null;
-            isActive?: boolean;
-            isAddon?: boolean;
-          }
-          const mappedItems: IMenuItem[] = data.map((item: ApiMenuItem) => ({
+          const mappedItems: IMenuItem[] = data.map((item: any) => ({
             id: item._id || item.id,
             title: locale === 'ja' ? (item.nameJp || item.nameEn || '無題') : (item.nameEn || item.nameJp || 'Untitled'),
             price: item.price,
@@ -89,7 +92,7 @@ export default function AddonSelector({ parentItemId, onClose }: AddonSelectorPr
     };
 
     fetchAddons();
-  }, [parentItemId, locale]); // Only fetch when parentItemId or locale changes
+  }, [parentId, locale]);
 
   const updateAddonQuantity = (addonId: string, quantity: number) => {
     const newSelected = new Map(selectedAddons);
@@ -102,31 +105,43 @@ export default function AddonSelector({ parentItemId, onClose }: AddonSelectorPr
   };
 
   const handleSave = () => {
-    // Remove all existing addons first
-    existingAddons.forEach(addon => {
-      dispatch({
-        type: "REMOVE_ADDON",
-        payload: { parentItemId, addonId: addon.id }
-      });
-    });
-
-    // Add selected addons
+    const finalAddons: ICartItem[] = [];
     selectedAddons.forEach((quantity, addonId) => {
       const addonItem = addonItems.find(item => item.id === addonId);
       if (addonItem) {
-        dispatch({
-          type: "ADD_ADDON",
-          payload: {
-            parentItemId,
-            addon: {
-              ...addonItem,
-              quantity,
-              totalAmount: addonItem.price * quantity,
-            }
-          }
+        finalAddons.push({
+          ...addonItem,
+          cartItemId: `addon-${addonItem.id}-${Date.now()}`,
+          quantity,
+          totalAmount: addonItem.price * quantity,
         });
       }
     });
+
+    if (onSaveAddons) {
+      // Standalone mode: call callback
+      onSaveAddons(finalAddons);
+    } else if (cartItemId) {
+      // Cart mode: dispatch to global state
+      // First remove existing
+      const currentItem = items.find(item => item.cartItemId === cartItemId);
+      if (currentItem?.addons) {
+        currentItem.addons.forEach(addon => {
+          dispatch({
+            type: "REMOVE_ADDON",
+            payload: { cartItemId, addonId: addon.id }
+          });
+        });
+      }
+
+      // Then add new ones
+      finalAddons.forEach(addon => {
+        dispatch({
+          type: "ADD_ADDON",
+          payload: { cartItemId, addon }
+        });
+      });
+    }
 
     onClose();
   };

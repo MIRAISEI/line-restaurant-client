@@ -69,7 +69,11 @@
         "addToCart": "カートに追加",
         "checkout": "チェックアウト",
         "orderDish": "注文する",
-        "close": "閉じる"
+        "close": "閉じる",
+        "addons": "追加アイテム",
+        "addAddons": "追加アイテムを追加",
+        "editAddons": "追加アイテムを編集",
+        "noAddonsSelected": "追加アイテムが選択されていません"
     },
     "Login": {
         "title": "ようこそ",
@@ -138,6 +142,13 @@
         "profile": "プロフィール",
         "notifications": "通知",
         "logout": "ログアウト",
+        "reports": "レポート",
+        "exportCsv": "CSVエクスポート",
+        "totalRevenue": "総売上",
+        "totalOrders": "総注文数",
+        "avgOrderValue": "注文単価",
+        "uniqueCustomers": "顧客数",
+        "detailedReport": "詳細レポート",
         "unreadNotifications": "件の新しい通知",
         "backToMenu": "メニューに戻る",
         "today": "本日",
@@ -161,7 +172,7 @@
         "orderDetails": "注文詳細",
         "manageAndTrack": "すべての注文を管理・追跡",
         "orderId": "注文ID",
-        "table": "テーブル",
+        "tableHeader": "テーブル",
         "customer": "顧客",
         "status": "ステータス",
         "paymentMethod": "支払い方法",
@@ -171,6 +182,7 @@
         "total": "合計",
         "close": "閉じる",
         "moreItems": "他 {count} 件（タップしてすべて表示）",
+        "loading": "読み込み中...",
         "loadingOrders": "注文を読み込み中...",
         "filtersAndSort": "フィルターと並べ替え",
         "clearAll": "すべてクリア",
@@ -241,6 +253,79 @@
         "existingCategories": "既存のカテゴリー:",
         "more": "件以上",
         "selectCategory": "既存のものを選択、または新規入力",
-        "typeOrSelectCategory": "カテゴリーを入力または選択"
+        "typeOrSelectCategory": "カテゴリーを入力または選択",
+        "userManagement": "ユーザー管理",
+        "addUser": "ユーザーを追加",
+        "searchUsers": "名前またはIDで検索...",
+        "noUsersFound": "ユーザーが見つかりません",
+        "usersWillAppear": "ユーザーが注文するとここに表示されます",
+        "tryAdjustingSearch": "検索条件を変更してみてください",
+        "roles": {
+            "all": "すべての役割",
+            "admin": "管理者",
+            "manager": "マネージャー",
+            "staff": "スタッフ",
+            "customer": "顧客"
+        },
+        "table": {
+            "user": "ユーザー",
+            "userId": "ユーザーID",
+            "totalOrders": "総注文数",
+            "totalSpent": "総支出",
+            "lastOrder": "最終注文",
+            "role": "役割",
+            "status": "ステータス",
+            "actions": "操作"
+        },
+        "timeAgo": {
+            "secAgo": "{count}秒前",
+            "minAgo": "{count}分前",
+            "hourAgo": "{count}時間前",
+            "dayAgo": "{count}日前",
+            "never": "記録なし"
+        },
+        "deleteUserConfirm": "ユーザー「{name}」を削除してもよろしいですか？",
+        "payPayModal": {
+            "title": "PayPay支払いを完了",
+            "description": "カウンターでのPayPay支払いが完了したことを確認してください。",
+            "markAsPaid": "支払い済みにする",
+            "payPayQr": "PayPay QRコード",
+            "openInPayPay": "PayPayで開く",
+            "qrNotAvailable": "バックエンドからQRコードを取得できません。バックエンドがPayPay QR URLを提供した後、更新してください。",
+            "confirmMessage": "確認すると、この注文はPayPay経由で<strong>支払い済み</strong>としてマークされます。",
+            "failedToLoadQrImage": "QRコード画像の読み込みに失敗しました",
+            "retry": "再試行",
+            "loadingQr": "PayPay QRコードを読み込み中..."
+        },
+        "paymentOptions": {
+            "selectStatus": "支払い状況を選択",
+            "pending": "保留中",
+            "paypayComplete": "PayPayで完了",
+            "manualComplete": "カウンター支払いで完了",
+            "cancel": "保留/キャンセルに設定"
+        },
+        "paymentMethods": {
+            "paypayAfter": "PayPay（食後払い）",
+            "manualCounter": "カウンター支払い"
+        },
+        "paymentStatuses": {
+            "paid": "支払い済み",
+            "pending": "保留中",
+            "notRecorded": "未記録"
+        },
+        "addUserModal": {
+            "title": "ユーザーを追加",
+            "description": "新しいユーザーアカウントを作成します",
+            "userId": "ユーザーID",
+            "displayName": "表示名",
+            "email": "メールアドレス",
+            "phone": "電話番号",
+            "role": "役割",
+            "cancel": "キャンセル",
+            "creating": "作成中...",
+            "createUser": "ユーザーを作成",
+            "errorUserIdNameRequired": "ユーザーIDと表示名は必須です",
+            "errorCreateUser": "ユーザーの作成に失敗しました。もう一度お試しください。"
+        }
     }
 }

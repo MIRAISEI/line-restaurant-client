@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { createUser, type UserRole } from "@/lib/admin-api";
 
 interface AddUserModalProps {
@@ -14,6 +15,7 @@ export default function AddUserModal({
   onClose,
   onSuccess,
 }: AddUserModalProps) {
+  const t = useTranslations('Admin.addUserModal');
   const [formData, setFormData] = useState({
     userId: "",
     displayName: "",
@@ -34,7 +36,7 @@ export default function AddUserModal({
     try {
       // Validate form
       if (!formData.userId.trim() || !formData.displayName.trim()) {
-        setError("User ID and Display Name are required");
+        setError(t('errorUserIdNameRequired'));
         setIsSubmitting(false);
         return;
       }
@@ -63,7 +65,7 @@ export default function AddUserModal({
     } catch (err) {
       console.error("Failed to create user:", err);
       // Display the actual error message from the API
-      const errorMessage = err instanceof Error ? err.message : "Failed to create user. Please try again.";
+      const errorMessage = err instanceof Error ? err.message : t('errorCreateUser');
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -99,17 +101,17 @@ export default function AddUserModal({
         <div className="sticky top-0 bg-gradient-to-r from-[#06C755] via-[#00C300] to-[#06C755] px-6 md:px-8 py-6 md:py-7 flex items-center justify-between rounded-t-3xl shadow-lg z-10 min-h-[80px]">
           <div className="flex-1">
             <h2 className="text-2xl md:text-3xl font-bold text-white drop-shadow-lg">
-              Add New User
+              {t('title')}
             </h2>
             <p className="text-base md:text-lg text-white/95 mt-2 font-medium">
-              Create a new user account
+              {t('description')}
             </p>
           </div>
           <button
             onClick={handleClose}
             disabled={isSubmitting}
             className="text-white/90 active:text-white transition-all duration-200 p-3 md:p-4 active:bg-white/30 rounded-full backdrop-blur-sm min-w-[48px] min-h-[48px] md:min-w-[56px] md:min-h-[56px] flex items-center justify-center touch-manipulation disabled:opacity-50"
-            aria-label="Close modal"
+            aria-label={t('cancel')}
           >
             <svg
               className="w-7 h-7 md:w-8 md:h-8"
@@ -139,7 +141,7 @@ export default function AddUserModal({
             {/* User ID */}
             <div>
               <label className="block text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">
-                User ID <span className="text-red-500">*</span>
+                {t('userId')} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -156,7 +158,7 @@ export default function AddUserModal({
             {/* Display Name */}
             <div>
               <label className="block text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">
-                Display Name <span className="text-red-500">*</span>
+                {t('displayName')} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -175,7 +177,7 @@ export default function AddUserModal({
               {/* Email */}
               <div>
                 <label className="block text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">
-                  Email
+                  {t('email')}
                 </label>
                 <input
                   type="email"
@@ -191,7 +193,7 @@ export default function AddUserModal({
               {/* Phone */}
               <div>
                 <label className="block text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">
-                  Phone
+                  {t('phone')}
                 </label>
                 <input
                   type="tel"
@@ -208,7 +210,7 @@ export default function AddUserModal({
             {/* Role */}
             <div>
               <label className="block text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">
-                Role <span className="text-red-500">*</span>
+                {t('role')} <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.role}
@@ -234,7 +236,7 @@ export default function AddUserModal({
                 disabled={isSubmitting}
                 className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition-all duration-200 active:scale-95 touch-manipulation min-h-[48px] disabled:opacity-50"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 type="submit"
@@ -244,12 +246,12 @@ export default function AddUserModal({
                 {isSubmitting ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Creating...</span>
+                    <span>{t('creating')}</span>
                   </>
                 ) : (
                   <>
                     <span>✓</span>
-                    <span>Create User</span>
+                    <span>{t('createUser')}</span>
                   </>
                 )}
               </button>

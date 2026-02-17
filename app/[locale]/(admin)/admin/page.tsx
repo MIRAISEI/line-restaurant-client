@@ -424,7 +424,7 @@ function RecentOrderItem({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 pb-4 border-b-2 border-white/50 gap-3">
           <div className="flex flex-wrap items-center gap-2 md:gap-3">
             <span className="font-bold text-gray-900 text-lg md:text-xl">{order.orderId}</span>
-            <span className="text-base md:text-lg text-gray-600 font-medium">{t('table')} {order.tableNumber}</span>
+            <span className="text-base md:text-lg text-gray-600 font-medium">{t('tableHeader')} {order.tableNumber}</span>
             <span
               className={`text-sm md:text-base font-bold px-4 py-2 md:px-5 md:py-2.5 rounded-full border-2 shadow-sm ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border} min-h-[44px] flex items-center`}
             >
@@ -594,8 +594,8 @@ function OrderDetailsModal({
                 <p className="text-xl md:text-2xl font-bold text-gray-900 mt-3">{order.orderId}</p>
               </div>
               <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 md:p-5 border border-white/50 min-h-[80px] flex flex-col justify-center">
-                <p className="text-sm md:text-base font-bold text-gray-600 uppercase tracking-wide">{t('table')}</p>
-                <p className="text-xl md:text-2xl font-bold text-gray-900 mt-3">{t('table')} {order.tableNumber}</p>
+                <p className="text-sm md:text-base font-bold text-gray-600 uppercase tracking-wide">{t('tableHeader')}</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900 mt-3">{t('tableHeader')} {order.tableNumber}</p>
               </div>
               <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 md:p-5 border border-white/50 min-h-[80px] flex flex-col justify-center">
                 <p className="text-sm md:text-base font-bold text-gray-600 uppercase tracking-wide">{t('customer')}</p>

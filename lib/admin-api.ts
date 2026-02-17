@@ -347,9 +347,16 @@ export function getAuthHeaders(): HeadersInit {
 }
 
 // Order API functions - Fetch from MongoDb
-export async function getOrders(): Promise<Order[]> {
+export async function getOrders(startDate?: string, endDate?: string): Promise<Order[]> {
   try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/api/orders`, {
+    const queryParams = new URLSearchParams();
+    if (startDate) queryParams.append('startDate', startDate);
+    if (endDate) queryParams.append('endDate', endDate);
+
+    const queryString = queryParams.toString();
+    const url = `${API_BASE_URL}/api/orders${queryString ? `?${queryString}` : ''}`;
+
+    const response = await fetchWithTimeout(url, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
@@ -791,6 +798,63 @@ export async function deleteCategory(id: string): Promise<void> {
       throw error;
     }
     throw new Error('Failed to delete category');
+  }
+}
+
+// Cart API functions
+export async function getCart(): Promise<any[]> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/user/cart`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) return [];
+      await handleApiError(response, 'Failed to fetch cart');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching cart:', error);
+    return [];
+  }
+}
+
+export async function syncCart(items: any[]): Promise<{ success: boolean; error?: string }> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/user/cart/sync`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ items }),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to sync cart');
+    }
+
+    return response.json();
+  } catch (error: any) {
+    console.error('Error syncing cart:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function clearCart(): Promise<{ success: boolean; error?: string }> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/user/cart`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to clear cart');
+    }
+
+    return response.json();
+  } catch (error: any) {
+    console.error('Error clearing cart:', error);
+    return { success: false, error: error.message };
   }
 }
 

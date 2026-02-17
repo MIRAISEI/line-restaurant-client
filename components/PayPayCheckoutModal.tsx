@@ -93,6 +93,34 @@ export default function PayPayCheckoutModal({
     };
   }, [isOpen, paymentTiming, orderId, qrEndpoint, retryKey, t]);
 
+  // Polling for payment status
+  useEffect(() => {
+    if (!isOpen || paymentTiming !== "now" || !orderId || !qrUrl) return;
+
+    let pollingInterval: NodeJS.Timeout;
+
+    const checkStatus = async () => {
+      try {
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${apiBaseUrl}/api/paypay/status/${orderId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status === 'paid') {
+            onPaymentComplete("now");
+          }
+        }
+      } catch (error) {
+        console.error("Status polling error:", error);
+      }
+    };
+
+    pollingInterval = setInterval(checkStatus, 3000); // Check every 3 seconds
+
+    return () => {
+      if (pollingInterval) clearInterval(pollingInterval);
+    };
+  }, [isOpen, paymentTiming, orderId, qrUrl, onPaymentComplete]);
+
   const handleConfirm = () => {
     onPaymentComplete(paymentTiming);
   };

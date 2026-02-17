@@ -23,10 +23,10 @@ export default function OrderRow({
   const [paymentSelectValue, setPaymentSelectValue] = useState("");
 
   const PAYMENT_OPTIONS = [
-    { value: "pending", label: locale === 'ja' ? '保留中' : "Pending" },
-    { value: "paypay_complete", label: locale === 'ja' ? 'PayPayで完了' : "Complete with PayPay" },
-    { value: "manual_complete", label: locale === 'ja' ? 'カウンター支払いで完了' : "Complete Manual Pay" },
-    { value: "cancel", label: locale === 'ja' ? '保留/キャンセルに設定' : "Set as Pending / Cancel" },
+    { value: "pending", label: t('paymentOptions.pending') },
+    { value: "paypay_complete", label: t('paymentOptions.paypayComplete') },
+    { value: "manual_complete", label: t('paymentOptions.manualComplete') },
+    { value: "cancel", label: t('paymentOptions.cancel') },
   ] as const;
 
   // Format date and time
@@ -42,10 +42,10 @@ export default function OrderRow({
   const isPaid = order.paymentStatus === "paid";
   const paymentStatusLabel =
     order.paymentStatus === "paid"
-      ? (locale === 'ja' ? '支払い済み' : "Paid")
+      ? t('paymentStatuses.paid')
       : order.paymentStatus === "pending"
-        ? (locale === 'ja' ? '保留中' : "Pending")
-        : (locale === 'ja' ? '未記録' : "Not recorded");
+        ? t('paymentStatuses.pending')
+        : t('paymentStatuses.notRecorded');
 
   const paymentStatusClass =
     order.paymentStatus === "paid"
@@ -133,8 +133,8 @@ export default function OrderRow({
                   <div className="flex items-center gap-2 mt-1">
                     <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-800 border border-gray-300">
                       {order.paymentMethod === "paypay"
-                        ? (locale === 'ja' ? 'PayPay（食後払い）' : "PayPay (After dining)")
-                        : (locale === 'ja' ? 'カウンター支払い' : "Manual (Counter)")}
+                        ? t('paymentMethods.paypayAfter')
+                        : t('paymentMethods.manualCounter')}
                     </span>
                     <span
                       className={`px-2 py-0.5 rounded-full text-xs font-bold border ${paymentStatusClass}`}
@@ -153,7 +153,7 @@ export default function OrderRow({
                       className="px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-300 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 disabled:opacity-50"
                     >
                       <option value="" disabled>
-                        {locale === 'ja' ? '支払い状況を選択' : 'Select payment status'}
+                        {t('paymentOptions.selectStatus')}
                       </option>
 
                       {PAYMENT_OPTIONS.map((option) => (

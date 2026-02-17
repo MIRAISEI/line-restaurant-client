@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 import { type Order, updateOrderPaymentStatus } from "@/lib/admin-api";
 
 interface PayPayPaymentModalProps {
@@ -15,6 +16,7 @@ export default function PayPayPaymentModal({
   onClose,
   onPaymentComplete,
 }: PayPayPaymentModalProps) {
+  const t = useTranslations('Admin');
   const [isSaving, setIsSaving] = useState(false);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [qrError, setQrError] = useState<string | null>(null);
@@ -111,9 +113,9 @@ export default function PayPayPaymentModal({
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-100 flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-extrabold text-gray-900">Complete PayPay Payment</h2>
+            <h2 className="text-xl font-extrabold text-gray-900">{t('payPayModal.title')}</h2>
             <p className="text-sm text-gray-600 mt-1">
-              Confirm that PayPay payment was completed at the counter.
+              {t('payPayModal.description')}
             </p>
           </div>
           <button
@@ -131,19 +133,19 @@ export default function PayPayPaymentModal({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">
-                  Order ID
+                  {t('orderId')}
                 </p>
                 <p className="text-lg font-bold text-gray-900">{order.orderId}</p>
               </div>
               <div className="text-right">
                 <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">
-                  Amount
+                  {t('total')}
                 </p>
                 <p className="text-lg font-extrabold text-gray-900">¥{order.total.toLocaleString()}</p>
               </div>
             </div>
             <div className="mt-3 text-sm text-gray-700">
-              <p className="font-semibold text-gray-800 mb-2">Items</p>
+              <p className="font-semibold text-gray-800 mb-2">{t('orderItems')}</p>
               <ul className="space-y-1">
                 {order.items.map((item) => (
                   <li key={item.itemId} className="flex justify-between text-sm text-gray-700">
@@ -158,11 +160,11 @@ export default function PayPayPaymentModal({
           </div>
 
           <div className="bg-white border border-dashed border-gray-300 rounded-xl p-4 text-center">
-            <h3 className="font-bold text-gray-900 mb-3">PayPay QR</h3>
+            <h3 className="font-bold text-gray-900 mb-3">{t('payPayModal.payPayQr')}</h3>
             {qrLoading ? (
               <div className="py-6 text-sm text-gray-600 flex items-center justify-center gap-3">
                 <div className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
-                Loading PayPay QR...
+                {t('payPayModal.loadingQr')}
               </div>
             ) : qrError ? (
               <p className="text-sm text-red-600">
@@ -172,7 +174,7 @@ export default function PayPayPaymentModal({
               <div className="space-y-3">
                 {imageLoadError ? (
                   <div className="py-6 text-sm text-red-600">
-                    <p className="font-semibold mb-2">Failed to load QR code image</p>
+                    <p className="font-semibold mb-2">{t('payPayModal.failedToLoadQrImage')}</p>
                     <p className="text-xs text-gray-500">The QR code URL may be invalid or blocked.</p>
                     <button
                       type="button"
@@ -184,7 +186,7 @@ export default function PayPayPaymentModal({
                       }}
                       className="mt-3 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
                     >
-                      Retry
+                      {t('payPayModal.retry')}
                     </button>
                   </div>
                 ) : (
@@ -211,19 +213,21 @@ export default function PayPayPaymentModal({
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#ff6b35] hover:bg-[#e55f2f] transition-colors"
                   >
-                    Open in PayPay
+                    {t('payPayModal.openInPayPay')}
                   </a>
                 )}
               </div>
             ) : (
               <p className="text-sm text-gray-600">
-                QR code is not available from the backend. Please refresh after the backend provides a PayPay QR URL.
+                {t('payPayModal.qrNotAvailable')}
               </p>
             )}
           </div>
 
           <div className="text-sm text-gray-600">
-            By confirming, this order will be marked as <strong className="text-green-700">Paid</strong> via PayPay.
+            {t.rich('payPayModal.confirmMessage', {
+              strong: (chunks: React.ReactNode) => <strong className="text-green-700">{chunks}</strong>
+            })}
           </div>
         </div>
 
@@ -234,7 +238,7 @@ export default function PayPayPaymentModal({
             className="px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
             disabled={isSaving}
           >
-            Cancel
+            {t('cancel')}
           </button>
           <button
             type="button"
@@ -242,7 +246,7 @@ export default function PayPayPaymentModal({
             disabled={isSaving}
             className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#ff6b35] hover:bg-[#e55f2f] disabled:opacity-60 transition-colors"
           >
-            {isSaving ? "Saving..." : "Mark as Paid"}
+            {isSaving ? t('saving') : t('payPayModal.markAsPaid')}
           </button>
         </div>
       </div>
