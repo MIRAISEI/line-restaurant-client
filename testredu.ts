@@ -47,15 +47,15 @@ export const cartReducer = (state: CartState, action: CartAction): CartState => 
         }
 
         case 'UPDATE_QUANTITY': {
-            const { id, newQuantity } = action.payload;
+            const { cartItemId, newQuantity } = action.payload;
             
             // If new quantity is zero or less, remove the item
             if (newQuantity <= 0) {
-                return cartReducer(state, { type: 'REMOVE_ITEM', payload: { id } });
+                return cartReducer(state, { type: 'REMOVE_ITEM', payload: { cartItemId } });
             }
 
             const updatedItems = state.items.map(item =>
-                item.id === id
+                item.cartItemId === cartItemId
                     ? {
                         ...item,
                         quantity: newQuantity,
@@ -71,7 +71,7 @@ export const cartReducer = (state: CartState, action: CartAction): CartState => 
         }
 
         case 'REMOVE_ITEM': {
-            const updatedItems = state.items.filter(item => item.id !== action.payload.id);
+            const updatedItems = state.items.filter(item => item.cartItemId !== action.payload.cartItemId);
             return {
                 items: updatedItems,
                 ...calculateTotals(updatedItems)

@@ -182,6 +182,7 @@
         "total": "Total",
         "close": "Close",
         "moreItems": "+ {count} more items (tap to view all)",
+        "loading": "Loading...",
         "loadingOrders": "Loading orders...",
         "filtersAndSort": "Filters & Sort",
         "clearAll": "Clear All",

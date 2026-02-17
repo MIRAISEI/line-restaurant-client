@@ -132,7 +132,7 @@ export default function FilterBar({ orders, onFilterChange, onSortChange }: Filt
         {/* Filter by Table */}
         <div className="flex-1">
           <label className="block text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">
-            {t('table')}
+            {t('tableHeader')}
           </label>
           <select
             value={tableFilter}
@@ -142,7 +142,7 @@ export default function FilterBar({ orders, onFilterChange, onSortChange }: Filt
             <option value="all">{t('allTables')}</option>
             {uniqueTables.map((table) => (
               <option key={table} value={table}>
-                {t('table')} {table}
+                {t('tableHeader')} {table}
               </option>
             ))}
           </select>
@@ -193,7 +193,7 @@ export default function FilterBar({ orders, onFilterChange, onSortChange }: Filt
             )}
             {tableFilter !== "all" && (
               <span className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-full text-sm font-bold border border-purple-200">
-                {t('table')}: {tableFilter}
+                {t('tableHeader')}: {tableFilter}
               </span>
             )}
             {sortOrder === "oldest" && (
