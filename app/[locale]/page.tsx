@@ -1,4 +1,4 @@
-import { getTranslations, getLocale } from 'next-intl/server';
+import { getTranslations, getLocale } from "next-intl/server";
 import MenuContent from "@/components/MenuContent";
 
 // Get API base URL - use sukiya-api backend
@@ -23,15 +23,15 @@ interface Category {
 async function getCategories(): Promise<Category[]> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/categories`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       next: { revalidate: 0 },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch categories');
+      throw new Error("Failed to fetch categories");
     }
 
     const data = await response.json();
@@ -40,22 +40,21 @@ async function getCategories(): Promise<Category[]> {
       .map((cat: Category) => ({
         id: cat.nameEn || cat.name, // We use nameEn as ID for filtering in menu API
         name: cat.name,
-        nameEn: cat.nameEn || cat.name || '',
-        nameJp: cat.nameJp || cat.name || '',
+        nameEn: cat.nameEn || cat.name || "",
+        nameJp: cat.nameJp || cat.name || "",
         imageUrl: cat.imageUrl,
       }));
-    return {
-      items,
-      categories
-    };
+    // return {
+    //   items,
+    //   categories};
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error("Error fetching categories:", error);
     return [];
   }
 }
 
 export default async function Home() {
-  const t = await getTranslations('Home');
+  const t = await getTranslations("Home");
   const categories = await getCategories();
   const apiBaseUrl = getApiBaseUrl();
 
@@ -63,14 +62,11 @@ export default async function Home() {
     <main className="flex min-h-screen bg-background transition-colors duration-300">
       <div className="inner-wrapper flex-col mt-[100px]">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">{t('hello')}</h1>
-          <p className="text-muted-foreground">{t('welcome')}</p>
+          <h1 className="text-3xl font-bold">{t("hello")}</h1>
+          <p className="text-muted-foreground">{t("welcome")}</p>
         </div>
 
-        <MenuContent
-          initialCategories={categories}
-          apiBaseUrl={apiBaseUrl}
-        />
+        <MenuContent initialCategories={categories} apiBaseUrl={apiBaseUrl} />
       </div>
     </main>
   );
