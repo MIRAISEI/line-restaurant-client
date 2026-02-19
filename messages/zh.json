@@ -139,6 +139,7 @@
         "notifications": "通知",
         "logout": "退出登录",
         "reports": "报告",
+        "tables": "餐桌",
         "exportCsv": "导出 CSV",
         "totalRevenue": "总营收",
         "totalOrders": "总订单数",
@@ -309,6 +310,19 @@
             "paid": "已支付",
             "pending": "待处理",
             "notRecorded": "未记录"
+        },
+        "tableStatus": {
+            "subtitle": "使用卡片快速设置餐桌状态",
+            "tableCount": "桌位数量",
+            "rangeFrom": "起始",
+            "rangeTo": "结束",
+            "setRangeAvailable": "将范围设为空闲",
+            "reset": "清除自定义状态",
+            "available": "空闲",
+            "occupied": "使用中",
+            "reserved": "已预订",
+            "cleaning": "清洁中",
+            "note": "餐桌状态会通过后端 API 同步。"
         },
         "addUserModal": {
             "title": "添加新用户",

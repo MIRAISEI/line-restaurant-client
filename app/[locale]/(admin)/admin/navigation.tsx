@@ -26,7 +26,8 @@ import {
   ChevronRight,
   Menu,
   X,
-  BarChart3
+  BarChart3,
+  Armchair
 } from "lucide-react";
 
 export default function AdminNavigation() {
@@ -75,6 +76,7 @@ export default function AdminNavigation() {
   const navItems = [
     { href: "/admin", label: t('dashboard'), icon: LayoutDashboard },
     { href: "/admin/orders", label: t('orders'), icon: ShoppingCart },
+    { href: "/admin/tables", label: t('tables'), icon: Armchair },
     { href: "/admin/reports", label: t('reports') || "Reports", icon: BarChart3 },
     { href: "/admin/menu", label: t('menu'), icon: Utensils },
     { href: "/admin/categories", label: t('categories'), icon: Tags },

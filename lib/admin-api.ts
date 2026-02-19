@@ -103,6 +103,7 @@ async function handleApiError(response: Response, defaultMessage: string): Promi
 }
 
 export type OrderStatus = "Received" | "Preparing" | "Ready" | "Completed";
+export type TableStatus = "available" | "occupied" | "reserved" | "cleaning";
 
 export interface Order {
   _id: string;
@@ -120,6 +121,14 @@ export interface Order {
   }>;
   total: number;
   status: OrderStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TableStatusRecord {
+  _id: string;
+  tableNumber: string;
+  status: TableStatus;
   createdAt: string;
   updatedAt: string;
 }
@@ -415,6 +424,70 @@ export async function updateOrderStatus(
       throw error;
     }
     throw new Error('Failed to update order status');
+  }
+}
+
+export async function getTableStatuses(): Promise<TableStatusRecord[]> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tables`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to fetch table statuses');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to fetch table statuses');
+  }
+}
+
+export async function updateTableStatus(
+  tableNumber: string,
+  status: TableStatus
+): Promise<TableStatusRecord> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tables/${encodeURIComponent(tableNumber)}/status`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to update table status');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to update table status');
+  }
+}
+
+export async function clearTableStatuses(): Promise<{ success: boolean }> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tables`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to clear table statuses');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to clear table statuses');
   }
 }
 
@@ -802,7 +875,7 @@ export async function deleteCategory(id: string): Promise<void> {
 }
 
 // Cart API functions
-export async function getCart(): Promise<any[]> {
+export async function getCart(): Promise<unknown[]> {
   try {
     const response = await fetchWithTimeout(`${API_BASE_URL}/api/user/cart`, {
       method: 'GET',
@@ -821,7 +894,7 @@ export async function getCart(): Promise<any[]> {
   }
 }
 
-export async function syncCart(items: any[]): Promise<{ success: boolean; error?: string }> {
+export async function syncCart(items: unknown[]): Promise<{ success: boolean; error?: string }> {
   try {
     const response = await fetchWithTimeout(`${API_BASE_URL}/api/user/cart/sync`, {
       method: 'POST',
@@ -834,9 +907,9 @@ export async function syncCart(items: any[]): Promise<{ success: boolean; error?
     }
 
     return response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error syncing cart:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to sync cart' };
   }
 }
 
@@ -852,9 +925,9 @@ export async function clearCart(): Promise<{ success: boolean; error?: string }>
     }
 
     return response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error clearing cart:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to clear cart' };
   }
 }
 

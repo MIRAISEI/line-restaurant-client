@@ -143,6 +143,7 @@
         "notifications": "通知",
         "logout": "ログアウト",
         "reports": "レポート",
+        "tables": "テーブル",
         "exportCsv": "CSVエクスポート",
         "totalRevenue": "総売上",
         "totalOrders": "総注文数",
@@ -312,6 +313,19 @@
             "paid": "支払い済み",
             "pending": "保留中",
             "notRecorded": "未記録"
+        },
+        "tableStatus": {
+            "subtitle": "カード形式でテーブルの現在状況を管理",
+            "tableCount": "テーブル数",
+            "rangeFrom": "開始",
+            "rangeTo": "終了",
+            "setRangeAvailable": "範囲を空席に設定",
+            "reset": "カスタム状態をクリア",
+            "available": "空席",
+            "occupied": "利用中",
+            "reserved": "予約済み",
+            "cleaning": "清掃中",
+            "note": "テーブル状態はバックエンドAPI経由で同期されます。"
         },
         "addUserModal": {
             "title": "ユーザーを追加",

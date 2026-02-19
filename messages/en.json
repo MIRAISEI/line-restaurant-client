@@ -143,6 +143,7 @@
         "notifications": "Notifications",
         "logout": "Logout",
         "reports": "Reports",
+        "tables": "Tables",
         "exportCsv": "Export CSV",
         "totalRevenue": "Total Revenue",
         "totalOrders": "Total Orders",
@@ -312,6 +313,19 @@
             "paid": "Paid",
             "pending": "Pending",
             "notRecorded": "Not recorded"
+        },
+        "tableStatus": {
+            "subtitle": "Set live table conditions with quick status cards",
+            "tableCount": "Table count",
+            "rangeFrom": "From",
+            "rangeTo": "To",
+            "setRangeAvailable": "Set range Available",
+            "reset": "Clear custom statuses",
+            "available": "Available",
+            "occupied": "Occupied",
+            "reserved": "Reserved",
+            "cleaning": "Cleaning",
+            "note": "Table statuses sync through your backend API."
         },
         "addUserModal": {
             "title": "Add New User",
