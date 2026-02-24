@@ -133,6 +133,14 @@ export interface TableStatusRecord {
   updatedAt: string;
 }
 
+export interface TableRangeRecord {
+  _id: string;
+  rangeStart: number;
+  rangeEnd: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface MenuItem {
   _id: string;
   nameEn: string;
@@ -301,7 +309,7 @@ export async function getLineLoginUrl(): Promise<LineLoginResponse> {
 }
 
 // LIFF Login API function
-export async function liffLogin(profile: { userId: string; displayName: string; pictureUrl?: string }): Promise<LoginResponse> {
+export async function liffLogin(profile: { userId: string; displayName: string; pictureUrl?: string; tableNumber?: string }): Promise<LoginResponse> {
   try {
     const response = await fetchWithTimeout(`${API_BASE_URL}/api/auth/liff`, {
       method: 'POST',
@@ -488,6 +496,47 @@ export async function clearTableStatuses(): Promise<{ success: boolean }> {
       throw error;
     }
     throw new Error('Failed to clear table statuses');
+  }
+}
+
+export async function getTableRange(): Promise<TableRangeRecord | null> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tables/range`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to fetch table range');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to fetch table range');
+  }
+}
+
+export async function updateTableRange(rangeStart: number, rangeEnd: number): Promise<TableRangeRecord> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tables/range`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ rangeStart, rangeEnd }),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to update table range');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to update table range');
   }
 }
 

@@ -45,10 +45,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // If we have a LIFF profile and we're in LIFF, authenticate with it
     if (isInLiff && liffProfile && !user) {
       console.log("Authenticating with LIFF profile...", liffProfile);
+      const tableFromUrl =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("table") ||
+          new URLSearchParams(window.location.search).get("tableNumber")
+          : null;
+      const tableFromStorage =
+        typeof window !== "undefined"
+          ? localStorage.getItem("active_table_number")
+          : null;
+      const tableNumber = tableFromUrl || tableFromStorage || undefined;
+
       liffLogin({
         userId: liffProfile.userId,
         displayName: liffProfile.displayName,
         pictureUrl: liffProfile.pictureUrl,
+        tableNumber,
       })
         .then((response: LoginResponse) => {
           console.log("LIFF authentication successful", response);
@@ -57,6 +69,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         })
         .catch((error) => {
           console.error("LIFF authentication failed:", error);
+          if (typeof window !== "undefined") {
+            const message = error instanceof Error ? error.message : "Authentication failed";
+            window.location.href = `/login?error=${encodeURIComponent(message)}`;
+          }
         })
         .finally(() => {
           setIsLoading(false);

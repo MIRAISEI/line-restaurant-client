@@ -29,6 +29,14 @@ export async function GET(request: NextRequest) {
     const code = searchParams.get("code");
     const state = searchParams.get("state");
     const error = searchParams.get("error");
+    let tableNumberFromState: string | null = null;
+
+    if (state && state.includes("|table:")) {
+      const parts = state.split("|table:");
+      if (parts.length > 1 && parts[1]) {
+        tableNumberFromState = decodeURIComponent(parts[1]);
+      }
+    }
 
     if (error) {
       const errorDescription = searchParams.get("error_description");
@@ -51,6 +59,9 @@ export async function GET(request: NextRequest) {
     backendParams.set("code", code);
     if (state) {
       backendParams.set("state", state);
+    }
+    if (tableNumberFromState) {
+      backendParams.set("tableNumber", tableNumberFromState);
     }
 
     // Call backend callback endpoint
