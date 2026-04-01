@@ -540,6 +540,26 @@ export async function updateTableRange(rangeStart: number, rangeEnd: number): Pr
   }
 }
 
+export async function validateTableForLineLogin(tableNumber: string): Promise<{ valid: boolean; tableNumber?: string }> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tables/${encodeURIComponent(tableNumber)}/validate-login`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Table is not available for login');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Table is not available for login');
+  }
+}
+
 /**
  * Update payment status for an order (e.g. mark after-dining payments as paid).
  */

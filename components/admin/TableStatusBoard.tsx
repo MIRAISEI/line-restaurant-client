@@ -523,7 +523,8 @@ export default function TableStatusBoard() {
             </div>
             </div>
 
-            <div className="mb-5 rounded-2xl border border-violet-200 bg-violet-50/70 p-4">
+            <div className="mb-5 rounded-2xl bo
+            rder border-violet-200 bg-violet-50/70 p-4">
               <p className="text-sm font-bold text-violet-900">{t("tableStatus.previousUsers")}</p>
               {tableHistoryUsers.length === 0 ? (
                 <p className="mt-2 text-sm text-gray-600">{t("tableStatus.noHistory")}</p>

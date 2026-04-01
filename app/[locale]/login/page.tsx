@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { getLineLoginUrl } from "@/lib/admin-api";
+import { getLineLoginUrl, validateTableForLineLogin } from "@/lib/admin-api";
 import { useAuth } from "@/lib/auth-context";
 import { useLiff } from "@/lib/liff-provider";
 import { useTranslations } from 'next-intl';
@@ -54,6 +54,10 @@ function LoginContent() {
       const { loginUrl, state } = await getLineLoginUrl();
       const redirect = searchParams.get("redirect");
       const table = searchParams.get("table") || searchParams.get("tableNumber");
+
+      if (table && table.toLowerCase() !== 'take-away') {
+        await validateTableForLineLogin(table);
+      }
 
       // Store state in sessionStorage for verification
       if (typeof window !== "undefined") {

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
-import { login, verifyToken, removeAuthToken, setAuthToken, getAuthToken, getUserById, liffLogin, type AuthUser, type LoginResponse } from "./admin-api";
+import { login, verifyToken, removeAuthToken, setAuthToken, getAuthToken, getUserById, liffLogin, validateTableForLineLogin, type AuthUser, type LoginResponse } from "./admin-api";
 import { useLiff } from "./liff-provider";
 
 
@@ -56,12 +56,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           : null;
       const tableNumber = tableFromUrl || tableFromStorage || undefined;
 
-      liffLogin({
-        userId: liffProfile.userId,
-        displayName: liffProfile.displayName,
-        pictureUrl: liffProfile.pictureUrl,
-        tableNumber,
-      })
+      const liffAuthPromise = async () => {
+        if (tableNumber && tableNumber.toLowerCase() !== 'take-away') {
+          await validateTableForLineLogin(tableNumber);
+        }
+        return liffLogin({
+          userId: liffProfile.userId,
+          displayName: liffProfile.displayName,
+          pictureUrl: liffProfile.pictureUrl,
+          tableNumber,
+        });
+      };
+
+      liffAuthPromise()
         .then((response: LoginResponse) => {
           console.log("LIFF authentication successful", response);
           setAuthToken(response.token);
