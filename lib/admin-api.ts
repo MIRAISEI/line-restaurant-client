@@ -1,6 +1,8 @@
 // Mock API functions for admin dashboard
 // These will be replaced with actual API calls later
 
+import { ICartItem } from "@/types/cart-types";
+
 // Use deployed Vercel API by default
 // For local development, set NEXT_PUBLIC_API_URL=http://localhost:5001 in .env.local
 function getApiBaseUrl(): string {
@@ -944,7 +946,7 @@ export async function deleteCategory(id: string): Promise<void> {
 }
 
 // Cart API functions
-export async function getCart(): Promise<unknown[]> {
+export async function getCart(): Promise<ICartItem[]> {
   try {
     const response = await fetchWithTimeout(`${API_BASE_URL}/api/user/cart`, {
       method: 'GET',

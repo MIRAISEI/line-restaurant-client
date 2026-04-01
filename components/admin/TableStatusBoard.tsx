@@ -585,7 +585,7 @@ function SummaryTile({
   value,
   tone,
 }: {
-  icon: JSX.Element;
+  icon: React.JSX.Element;
   label: string;
   value: number;
   tone: string;
