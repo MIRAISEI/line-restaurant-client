@@ -3,7 +3,7 @@
 import { useTranslations, useLocale } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useAuth } from "@/lib/auth-context";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { getOrders } from "@/lib/admin-api";
 import {
   DropdownMenu,
@@ -33,7 +33,11 @@ export default function AdminNavigation() {
   const t = useTranslations('Admin');
   const locale = useLocale();
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const user = useMemo(() => ({
+    displayName: "Admin",
+    role: "admin",
+  }), []);
+  const logout = () => {};
   const router = useRouter();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

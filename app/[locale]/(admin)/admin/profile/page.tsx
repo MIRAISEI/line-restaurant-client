@@ -21,7 +21,33 @@ export default function ProfilePage() {
 
   useEffect(() => {
     async function fetchUserProfile() {
-      if (!currentUser) return;
+      // If no authenticated user is available (auth removed for dev),
+      // provide a sensible default admin user so the profile page still renders.
+      if (!currentUser) {
+        const defaultAdmin: User = {
+          _id: "local-admin-0",
+          userId: "admin",
+          displayName: "Admin",
+          email: "admin@example.com",
+          phone: "",
+          role: "admin",
+          totalOrders: 0,
+          totalSpent: 0,
+          lastOrderDate: undefined,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          isActive: true,
+        } as User;
+
+        setUser(defaultAdmin);
+        setFormData({
+          displayName: defaultAdmin.displayName,
+          email: defaultAdmin.email || "",
+          phone: defaultAdmin.phone || "",
+        });
+        setLoading(false);
+        return;
+      }
       
       try {
         setLoading(true);
@@ -42,6 +68,33 @@ export default function ProfilePage() {
         console.error("Failed to fetch user profile:", error);
         const errorMessage = error instanceof Error ? error.message : "Failed to load profile information";
         setError(errorMessage);
+
+        // If fetching the full User failed but we do have an authenticated
+        // AuthUser (`currentUser`), fall back to a lightweight representation
+        // so the profile page can still render instead of showing "User not found".
+        if (currentUser) {
+          const fallbackUser: User = {
+            _id: currentUser._id || (currentUser.id as string) || "fallback-user",
+            userId: currentUser.userId || "",
+            displayName: currentUser.displayName || "User",
+            email: currentUser.email,
+            phone: currentUser.phone,
+            role: currentUser.role as User["role"],
+            totalOrders: 0,
+            totalSpent: 0,
+            lastOrderDate: undefined,
+            createdAt: currentUser.createdAt || new Date().toISOString(),
+            updatedAt: currentUser.updatedAt || new Date().toISOString(),
+            isActive: currentUser.isActive ?? true,
+          } as User;
+
+          setUser(fallbackUser);
+          setFormData({
+            displayName: fallbackUser.displayName,
+            email: fallbackUser.email || "",
+            phone: fallbackUser.phone || "",
+          });
+        }
       } finally {
         setLoading(false);
       }
@@ -79,20 +132,38 @@ export default function ProfilePage() {
 
     try {
       const userId = user._id;
-      const updatedUser = await updateUser(userId, {
-        displayName: formData.displayName.trim(),
-        email: formData.email.trim() || undefined,
-        phone: formData.phone.trim() || undefined,
-      });
 
-      // Update user data with the response
-      setUser(updatedUser);
-      
-      // Refresh auth context to update user data globally
-      await refreshUser();
+      // If this is the local default admin (no backend), avoid calling the
+      // API and just update local state so the user can see changes during
+      // development without backend auth.
+      if (userId && userId.startsWith("local-admin")) {
+        const updatedUser: User = {
+          ...user,
+          displayName: formData.displayName.trim(),
+          email: formData.email.trim() || undefined,
+          phone: formData.phone.trim() || undefined,
+          updatedAt: new Date().toISOString(),
+        };
 
-      setSuccess("Profile updated successfully!");
-      setIsEditing(false);
+        setUser(updatedUser);
+        setSuccess("Profile updated (local only)");
+        setIsEditing(false);
+      } else {
+        const updatedUser = await updateUser(userId, {
+          displayName: formData.displayName.trim(),
+          email: formData.email.trim() || undefined,
+          phone: formData.phone.trim() || undefined,
+        });
+
+        // Update user data with the response
+        setUser(updatedUser);
+
+        // Refresh auth context to update user data globally
+        await refreshUser();
+
+        setSuccess("Profile updated successfully!");
+        setIsEditing(false);
+      }
     } catch (err) {
       console.error("Failed to update profile:", err);
       const errorMessage = err instanceof Error ? err.message : "Failed to update profile. Please try again.";
@@ -104,7 +175,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-pink-50 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block relative">
             <div className="w-16 h-16 border-4 border-[#31a354]/20 rounded-full"></div>
@@ -116,7 +187,8 @@ export default function ProfilePage() {
     );
   }
 
-  if (!user || !currentUser) {
+  // Show 'User not found' only when neither a fetched user nor an auth user exists.
+  if (!user && !currentUser) {
     return (
       <div className="text-center py-20">
         <p className="text-xl font-bold text-gray-900">User not found</p>
@@ -138,6 +210,25 @@ export default function ProfilePage() {
         return "bg-gray-100 text-gray-700 border-gray-300";
     }
   };
+  // Ensure we have a concrete User object for rendering (fallback to currentUser if needed)
+  const displayUser: User | null = user ?? (currentUser
+    ? ({
+        _id: currentUser._id || (currentUser.id as string) || "fallback-user",
+        userId: currentUser.userId || "",
+        displayName: currentUser.displayName || "User",
+        email: currentUser.email,
+        phone: currentUser.phone,
+        role: currentUser.role as User["role"],
+        totalOrders: 0,
+        totalSpent: 0,
+        lastOrderDate: undefined,
+        createdAt: currentUser.createdAt || new Date().toISOString(),
+        updatedAt: currentUser.updatedAt || new Date().toISOString(),
+        isActive: currentUser.isActive ?? true,
+      } as User)
+    : null);
+
+  if (!displayUser) return null;
 
   return (
     <div>
@@ -170,22 +261,22 @@ export default function ProfilePage() {
             {/* Profile Header */}
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6 pb-6 border-b-2 border-gray-200">
               <div className="h-24 w-24 md:h-32 md:w-32 rounded-full bg-gradient-to-br from-[#06C755] to-[#00C300] flex items-center justify-center text-white font-bold text-4xl md:text-5xl shadow-lg">
-                {user.displayName.charAt(0).toUpperCase()}
+                {displayUser.displayName.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                  {user.displayName}
+                  {displayUser.displayName}
                 </h2>
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className={`px-4 py-2 text-sm font-bold rounded-lg border-2 ${getRoleBadgeColor(user.role)}`}>
-                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                  <span className={`px-4 py-2 text-sm font-bold rounded-lg border-2 ${getRoleBadgeColor(displayUser.role)}`}>
+                    {displayUser.role.charAt(0).toUpperCase() + displayUser.role.slice(1)}
                   </span>
                   <span className={`px-4 py-2 text-sm font-bold rounded-full border-2 ${
-                    user.isActive
+                    displayUser.isActive
                       ? "bg-green-100 text-green-700 border-green-300"
                       : "bg-gray-100 text-gray-700 border-gray-300"
                   }`}>
-                    {user.isActive ? "Active" : "Inactive"}
+                    {displayUser.isActive ? "Active" : "Inactive"}
                   </span>
                 </div>
               </div>
@@ -204,8 +295,8 @@ export default function ProfilePage() {
                 <label className="block text-sm font-bold text-gray-600 uppercase tracking-wide mb-2">
                   User ID
                 </label>
-                <p className="text-lg font-mono text-gray-900 bg-white px-4 py-3 rounded-xl">
-                  {user.userId}
+                  <p className="text-lg font-mono text-gray-900 bg-white px-4 py-3 rounded-xl">
+                  {displayUser.userId}
                 </p>
               </div>
 
@@ -214,7 +305,7 @@ export default function ProfilePage() {
                   Display Name
                 </label>
                 <p className="text-lg font-bold text-gray-900 bg-white px-4 py-3 rounded-xl">
-                  {user.displayName}
+                  {displayUser.displayName}
                 </p>
               </div>
 
@@ -223,7 +314,7 @@ export default function ProfilePage() {
                   Email
                 </label>
                 <p className="text-lg text-gray-900 bg-white px-4 py-3 rounded-xl">
-                  {user.email || "Not set"}
+                  {displayUser.email || "Not set"}
                 </p>
               </div>
 
@@ -232,7 +323,7 @@ export default function ProfilePage() {
                   Phone
                 </label>
                 <p className="text-lg text-gray-900 bg-white px-4 py-3 rounded-xl">
-                  {user.phone || "Not set"}
+                  {displayUser.phone || "Not set"}
                 </p>
               </div>
 
@@ -241,7 +332,7 @@ export default function ProfilePage() {
                   Total Orders
                 </label>
                 <p className="text-2xl font-bold text-gray-900 bg-white px-4 py-3 rounded-xl">
-                  {user.totalOrders}
+                  {displayUser.totalOrders}
                 </p>
               </div>
 
@@ -250,7 +341,7 @@ export default function ProfilePage() {
                   Total Spent
                 </label>
                 <p className="text-2xl font-bold text-gray-900 bg-white px-4 py-3 rounded-xl">
-                  ¥{user.totalSpent.toLocaleString()}
+                  ¥{displayUser.totalSpent.toLocaleString()}
                 </p>
               </div>
 
@@ -259,7 +350,7 @@ export default function ProfilePage() {
                   Member Since
                 </label>
                 <p className="text-lg text-gray-900 bg-white px-4 py-3 rounded-xl">
-                  {new Date(user.createdAt).toLocaleDateString("en-US", {
+                  {new Date(displayUser.createdAt).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -272,8 +363,8 @@ export default function ProfilePage() {
                   Last Order
                 </label>
                 <p className="text-lg text-gray-900 bg-white px-4 py-3 rounded-xl">
-                  {user.lastOrderDate
-                    ? new Date(user.lastOrderDate).toLocaleDateString("en-US", {
+                  {displayUser.lastOrderDate
+                    ? new Date(displayUser.lastOrderDate).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
