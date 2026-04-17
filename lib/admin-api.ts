@@ -1,6 +1,8 @@
 // Mock API functions for admin dashboard
 // These will be replaced with actual API calls later
 
+import { ICartItem } from "@/types/cart-types";
+
 // Use deployed Vercel API by default
 // For local development, set NEXT_PUBLIC_API_URL=http://localhost:5001 in .env.local
 function getApiBaseUrl(): string {
@@ -103,6 +105,7 @@ async function handleApiError(response: Response, defaultMessage: string): Promi
 }
 
 export type OrderStatus = "Received" | "Preparing" | "Ready" | "Completed";
+export type TableStatus = "available" | "occupied" | "reserved" | "cleaning";
 
 export interface Order {
   _id: string;
@@ -120,6 +123,22 @@ export interface Order {
   }>;
   total: number;
   status: OrderStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TableStatusRecord {
+  _id: string;
+  tableNumber: string;
+  status: TableStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TableRangeRecord {
+  _id: string;
+  rangeStart: number;
+  rangeEnd: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -292,7 +311,7 @@ export async function getLineLoginUrl(): Promise<LineLoginResponse> {
 }
 
 // LIFF Login API function
-export async function liffLogin(profile: { userId: string; displayName: string; pictureUrl?: string }): Promise<LoginResponse> {
+export async function liffLogin(profile: { userId: string; displayName: string; pictureUrl?: string; tableNumber?: string }): Promise<LoginResponse> {
   try {
     const response = await fetchWithTimeout(`${API_BASE_URL}/api/auth/liff`, {
       method: 'POST',
@@ -415,6 +434,131 @@ export async function updateOrderStatus(
       throw error;
     }
     throw new Error('Failed to update order status');
+  }
+}
+
+export async function getTableStatuses(): Promise<TableStatusRecord[]> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tables`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to fetch table statuses');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to fetch table statuses');
+  }
+}
+
+export async function updateTableStatus(
+  tableNumber: string,
+  status: TableStatus
+): Promise<TableStatusRecord> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tables/${encodeURIComponent(tableNumber)}/status`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to update table status');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to update table status');
+  }
+}
+
+export async function clearTableStatuses(): Promise<{ success: boolean }> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tables`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to clear table statuses');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to clear table statuses');
+  }
+}
+
+export async function getTableRange(): Promise<TableRangeRecord | null> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tables/range`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to fetch table range');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to fetch table range');
+  }
+}
+
+export async function updateTableRange(rangeStart: number, rangeEnd: number): Promise<TableRangeRecord> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tables/range`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ rangeStart, rangeEnd }),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Failed to update table range');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to update table range');
+  }
+}
+
+export async function validateTableForLineLogin(tableNumber: string): Promise<{ valid: boolean; tableNumber?: string }> {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tables/${encodeURIComponent(tableNumber)}/validate-login`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      await handleApiError(response, 'Table is not available for login');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Table is not available for login');
   }
 }
 
@@ -802,7 +946,7 @@ export async function deleteCategory(id: string): Promise<void> {
 }
 
 // Cart API functions
-export async function getCart(): Promise<any[]> {
+export async function getCart(): Promise<ICartItem[]> {
   try {
     const response = await fetchWithTimeout(`${API_BASE_URL}/api/user/cart`, {
       method: 'GET',
@@ -821,7 +965,7 @@ export async function getCart(): Promise<any[]> {
   }
 }
 
-export async function syncCart(items: any[]): Promise<{ success: boolean; error?: string }> {
+export async function syncCart(items: unknown[]): Promise<{ success: boolean; error?: string }> {
   try {
     const response = await fetchWithTimeout(`${API_BASE_URL}/api/user/cart/sync`, {
       method: 'POST',
@@ -834,9 +978,9 @@ export async function syncCart(items: any[]): Promise<{ success: boolean; error?
     }
 
     return response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error syncing cart:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to sync cart' };
   }
 }
 
@@ -852,9 +996,9 @@ export async function clearCart(): Promise<{ success: boolean; error?: string }>
     }
 
     return response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error clearing cart:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to clear cart' };
   }
 }
 

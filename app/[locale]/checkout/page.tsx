@@ -59,6 +59,8 @@ function CheckoutPage() {
         // Extract table number from userId (format: table_5)
         const tableId = user.userId.replace("table_", "");
         setTableNumber(tableId);
+      } else {
+        setTableNumber("take-away");
       }
     } else {
       // If not authenticated and no table from URL, redirect to login
@@ -389,9 +391,9 @@ function CheckoutPage() {
                       {t('orderSummary')}
                     </h2>
                     <div className="flex justify-between items-center text-sm text-gray-600">
-                      <span>{t('tableId')}</span>
+                      <span>{tableNumber === 'take-away' || tableNumber === 'takeaway' ? 'Order Type' : t('tableId')}</span>
                       <span className="font-semibold text-orange-600 bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
-                        #{tableNumber}
+                        {tableNumber === 'take-away' || tableNumber === 'takeaway' ? 'Take-away' : `#${tableNumber}`}
                       </span>
                     </div>
 

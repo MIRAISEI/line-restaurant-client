@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
-import { login, verifyToken, removeAuthToken, setAuthToken, getAuthToken, getUserById, liffLogin, type AuthUser, type LoginResponse } from "./admin-api";
+import { login, verifyToken, removeAuthToken, setAuthToken, getAuthToken, getUserById, liffLogin, validateTableForLineLogin, type AuthUser, type LoginResponse } from "./admin-api";
 import { useLiff } from "./liff-provider";
 
 
@@ -45,11 +45,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // If we have a LIFF profile and we're in LIFF, authenticate with it
     if (isInLiff && liffProfile && !user) {
       console.log("Authenticating with LIFF profile...", liffProfile);
-      liffLogin({
-        userId: liffProfile.userId,
-        displayName: liffProfile.displayName,
-        pictureUrl: liffProfile.pictureUrl,
-      })
+      const tableFromUrl =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("table") ||
+          new URLSearchParams(window.location.search).get("tableNumber")
+          : null;
+      const tableFromStorage =
+        typeof window !== "undefined"
+          ? localStorage.getItem("active_table_number")
+          : null;
+      const tableNumber = tableFromUrl || tableFromStorage || undefined;
+
+      const liffAuthPromise = async () => {
+        if (tableNumber && tableNumber.toLowerCase() !== 'take-away') {
+          await validateTableForLineLogin(tableNumber);
+        }
+        return liffLogin({
+          userId: liffProfile.userId,
+          displayName: liffProfile.displayName,
+          pictureUrl: liffProfile.pictureUrl,
+          tableNumber,
+        });
+      };
+
+      liffAuthPromise()
         .then((response: LoginResponse) => {
           console.log("LIFF authentication successful", response);
           setAuthToken(response.token);
@@ -57,6 +76,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         })
         .catch((error) => {
           console.error("LIFF authentication failed:", error);
+          if (typeof window !== "undefined") {
+            const message = error instanceof Error ? error.message : "Authentication failed";
+            window.location.href = `/login?error=${encodeURIComponent(message)}`;
+          }
         })
         .finally(() => {
           setIsLoading(false);

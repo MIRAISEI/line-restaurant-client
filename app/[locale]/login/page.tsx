@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { getLineLoginUrl } from "@/lib/admin-api";
+import { getLineLoginUrl, validateTableForLineLogin } from "@/lib/admin-api";
 import { useAuth } from "@/lib/auth-context";
 import { useLiff } from "@/lib/liff-provider";
 import { useTranslations } from 'next-intl';
@@ -32,6 +32,13 @@ function LoginContent() {
     }
   }, [isAuthenticated, router, searchParams]);
 
+  useEffect(() => {
+    const errorParam = searchParams.get("error");
+    if (errorParam) {
+      setError(decodeURIComponent(errorParam));
+    }
+  }, [searchParams]);
+
   // Show LIFF error if present
   useEffect(() => {
     if (liffError) {
@@ -48,6 +55,10 @@ function LoginContent() {
       const redirect = searchParams.get("redirect");
       const table = searchParams.get("table") || searchParams.get("tableNumber");
 
+      if (table && table.toLowerCase() !== 'take-away') {
+        await validateTableForLineLogin(table);
+      }
+
       // Store state in sessionStorage for verification
       if (typeof window !== "undefined") {
         sessionStorage.setItem("line_login_state", state);
@@ -55,8 +66,21 @@ function LoginContent() {
         if (table) sessionStorage.setItem("login_table", table);
       }
 
+      // Attach table info in state payload so callback can enforce table access.
+      let finalLoginUrl = loginUrl;
+      if (table) {
+        try {
+          const loginUri = new URL(loginUrl);
+          loginUri.searchParams.set("state", `${state}|table:${encodeURIComponent(table)}`);
+          finalLoginUrl = loginUri.toString();
+        } catch {
+          // Fallback to original URL if parsing fails
+          finalLoginUrl = loginUrl;
+        }
+      }
+
       // Redirect to LINE login
-      window.location.href = loginUrl;
+      window.location.href = finalLoginUrl;
     } catch (err) {
       console.error("LINE login error:", err);
       setError(err instanceof Error ? err.message : t('failed'));
