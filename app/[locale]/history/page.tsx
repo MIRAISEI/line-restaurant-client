@@ -1,57 +1,43 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "@/lib/auth-context";
-import { getUserOrders, type Order } from "@/lib/admin-api";
+import { getOrders, type Order } from "@/lib/admin-api";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/routing";
-import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
 export default function HistoryPage() {
-    const { user, isAuthenticated, isLoading } = useAuth();
-    const router = useRouter();
     const t = useTranslations('History');
+    const searchParams = useSearchParams();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loadingOrders, setLoadingOrders] = useState(true);
+    const [tableNumber, setTableNumber] = useState("");
 
     useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
-            router.push("/");
-        }
-    }, [isLoading, isAuthenticated, router]);
+        const tableFromUrl = searchParams.get("table") || searchParams.get("tableNumber");
+        const savedTable = localStorage.getItem("active_table_number");
+        setTableNumber(tableFromUrl || savedTable || "");
+    }, [searchParams]);
 
     useEffect(() => {
         const fetchOrders = async () => {
-            if (user?.userId) {
-                try {
-                    setLoadingOrders(true);
-                    const data = await getUserOrders(user.userId);
-                    // Filter for today's orders only
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-
-                    const filteredData = data.filter(order => {
-                        const orderDate = new Date(order.createdAt);
-                        return orderDate >= today;
-                    });
-
-                    setOrders(filteredData);
-                } catch (error) {
-                    console.error("Failed to fetch orders", error);
-                } finally {
-                    setLoadingOrders(false);
-                }
+            try {
+                setLoadingOrders(true);
+                const data = await getOrders();
+                const filteredData = tableNumber
+                    ? data.filter((order) => order.tableNumber === tableNumber)
+                    : data;
+                setOrders(filteredData);
+            } catch (error) {
+                console.error("Failed to fetch orders", error);
+            } finally {
+                setLoadingOrders(false);
             }
         };
 
-        if (user) {
-            fetchOrders();
-        } else if (!isLoading) {
-            setLoadingOrders(false);
-        }
-    }, [user, isLoading]);
+        fetchOrders();
+    }, [tableNumber]);
 
-    if (isLoading || loadingOrders) {
+    if (loadingOrders) {
         return (
             <div className="min-h-screen bg-gray-50 pt-[100px] flex justify-center">
                 <div className="animate-pulse flex flex-col items-center">
@@ -66,6 +52,11 @@ export default function HistoryPage() {
         <div className="min-h-screen bg-gray-50 pt-[100px] pb-20">
             <div className="container mx-auto px-4 max-w-2xl">
                 <h1 className="text-2xl font-bold text-gray-900 mb-6">{t('title')}</h1>
+                {!tableNumber && (
+                    <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                        Select a table number to view order history.
+                    </div>
+                )}
 
                 {orders.length === 0 ? (
                     <div className="bg-white rounded-xl shadow-sm p-8 text-center">

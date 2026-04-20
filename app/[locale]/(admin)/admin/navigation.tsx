@@ -2,7 +2,6 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
-import { useAuth } from "@/lib/auth-context";
 import { useEffect, useState, useMemo } from "react";
 import { getOrders } from "@/lib/admin-api";
 import {
@@ -38,7 +37,6 @@ export default function AdminNavigation() {
     displayName: "Admin",
     role: "admin",
   }), []);
-  const logout = () => {};
   const router = useRouter();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -72,11 +70,6 @@ export default function AdminNavigation() {
     }
   }, [user]);
 
-  const handleLogout = () => {
-    logout();
-    router.push("/admin/login");
-  };
-
   const navItems = [
     { href: "/admin", label: t('dashboard'), icon: LayoutDashboard },
     { href: "/admin/orders", label: t('orders'), icon: ShoppingCart },
@@ -84,9 +77,7 @@ export default function AdminNavigation() {
     { href: "/admin/reports", label: t('reports') || "Reports", icon: BarChart3 },
     { href: "/admin/menu", label: t('menu'), icon: Utensils },
     { href: "/admin/categories", label: t('categories'), icon: Tags },
-    ...(user?.role === "admin" || user?.role === "manager"
-      ? [{ href: "/admin/users", label: t('users'), icon: Users }]
-      : []),
+    { href: "/admin/users", label: t('users'), icon: Users },
     { href: "/admin/profile", label: t('profile'), icon: User },
   ];
 
@@ -135,13 +126,10 @@ export default function AdminNavigation() {
               </Link>
             ))}
             <div className="pt-6 border-t border-gray-100 flex flex-col gap-4">
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-4 p-4 rounded-2xl text-lg font-bold text-red-500 hover:bg-red-50 transition-all"
-              >
+              <div className="flex items-center gap-4 p-4 rounded-2xl text-lg font-bold text-gray-500 bg-white/70">
                 <LogOut className="w-6 h-6" />
-                {t('logout')}
-              </button>
+                Guest mode
+              </div>
             </div>
           </div>
         </div>
@@ -215,14 +203,12 @@ export default function AdminNavigation() {
               )}
             </Link>
 
-            {/* Logout */}
-            <button
-              onClick={handleLogout}
-              className="h-12 w-12 rounded-2xl bg-red-50 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-100 hover:shadow-sm"
-              title={t('logout')}
+            <div
+              className="h-12 w-12 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-500 border border-gray-100 hover:shadow-sm"
+              title="Guest mode"
             >
               <LogOut className="w-5 h-5" />
-            </button>
+            </div>
           </div>
         </div>
 

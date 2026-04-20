@@ -21,7 +21,7 @@ export default function MenuTable() {
     async function fetchMenuItems() {
       try {
         setLoading(true);
-        const data = await getMenuItems();
+        const data = await getMenuItems(true);
         setAllMenuItems(data);
         setMenuItems(data);
       } catch (error) {
@@ -36,7 +36,7 @@ export default function MenuTable() {
 
   const handleRefresh = async () => {
     try {
-      const data = await getMenuItems();
+      const data = await getMenuItems(true);
       setAllMenuItems(data);
       setMenuItems(data);
     } catch (error) {

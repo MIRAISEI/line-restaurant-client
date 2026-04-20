@@ -3,7 +3,6 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-import { useAuth } from "@/lib/auth-context";
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import PayPayCheckoutModal from "@/components/PayPayCheckoutModal";
@@ -17,7 +16,6 @@ function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { items, totalCartAmount, dispatch } = useCart();
-  const { user, isAuthenticated } = useAuth();
   const [tableNumber, setTableNumber] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("manual");
   const [payPayTiming] = useState<PayPayTiming>("after");
@@ -37,13 +35,6 @@ function CheckoutPage() {
     const tableFromUrl = searchParams.get("table") || searchParams.get("tableNumber");
     if (tableFromUrl) {
       setTableNumber(tableFromUrl);
-
-      // If not authenticated, redirect to login with table number preserved
-      if (!isAuthenticated) {
-        const loginUrl = `/login?redirect=/checkout&table=${encodeURIComponent(tableFromUrl)}`;
-        router.push(loginUrl);
-        return;
-      }
       return;
     }
 
@@ -51,23 +42,10 @@ function CheckoutPage() {
     const savedTableNumber = localStorage.getItem("active_table_number");
     if (savedTableNumber) {
       setTableNumber(savedTableNumber);
-    }
-    // Priority 3: Set table number from authenticated user if available
-    else if (isAuthenticated && user) {
-      // Try to get table number from user data
-      if (user.userId?.startsWith("table_")) {
-        // Extract table number from userId (format: table_5)
-        const tableId = user.userId.replace("table_", "");
-        setTableNumber(tableId);
-      } else {
-        setTableNumber("take-away");
-      }
     } else {
-      // If not authenticated and no table from URL, redirect to login
-      const loginUrl = `/login?redirect=/checkout`;
-      router.push(loginUrl);
+      setTableNumber("take-away");
     }
-  }, [items, router, isAuthenticated, user, searchParams]);
+  }, [items, router, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,9 +79,8 @@ function CheckoutPage() {
       setIsSubmitting(true);
       setError(null);
 
-      // Get user info
-      const userId = user?.userId || `table_${tableNumber.trim()}`;
-      const displayName = user?.displayName || user?.email || `Table ${tableNumber.trim()}`;
+      const userId = `table_${tableNumber.trim()}`;
+      const displayName = `Table ${tableNumber.trim()}`;
 
       // Transform cart items to order format
       const orderItems = items.map((item) => {
@@ -192,8 +169,8 @@ function CheckoutPage() {
       setIsSubmitting(true);
       setError(null);
 
-      const userId = user?.userId || `table_${tableNumber.trim()}`;
-      const displayName = user?.displayName || user?.email || `Table ${tableNumber.trim()}`;
+      const userId = `table_${tableNumber.trim()}`;
+      const displayName = `Table ${tableNumber.trim()}`;
 
       const orderItems = items.map((item) => {
         const orderItem: {
@@ -411,12 +388,6 @@ function CheckoutPage() {
 
                     <div className="border-t-2 border-orange-200 pt-4 mt-4 space-y-3">
 
-                      {isAuthenticated && user?.email && (
-                        <div className="flex justify-between items-center text-xs text-gray-500 pt-1">
-                          <span>{t('user')}</span>
-                          <span className="truncate max-w-[150px]">{user.email}</span>
-                        </div>
-                      )}
                       <div className="flex justify-between items-center border-t border-orange-100 pt-3">
                         <span className="text-xl font-semibold text-gray-800">{t('total')}</span>
                         <span className="text-2xl font-bold text-orange-600">¥{totalCartAmount.toLocaleString()}</span>

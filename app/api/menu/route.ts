@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ObjectId } from 'mongodb';
 import { getMongoDb } from '@/lib/db';
-import { getAuthTokenFromHeader } from '@/lib/auth';
 
 interface MenuItemDocument {
   _id: ObjectId;
@@ -18,12 +17,9 @@ interface MenuItemDocument {
 // GET /api/menu - Get menu items (all items for admin, only active for public)
 export async function GET(request: NextRequest) {
   try {
-    // Check if request has authorization header (admin request)
-    const authHeader = request.headers.get('authorization');
-    const isAdminRequest = !!getAuthTokenFromHeader(authHeader);
+    const includeInactive = request.nextUrl.searchParams.get('includeInactive') === 'true';
 
-    // For admin requests, return all items. For public requests, return only active items.
-    const whereClause = isAdminRequest ? {} : { isActive: true };
+    const whereClause = includeInactive ? {} : { isActive: true };
 
     const db = await getMongoDb();
     const menuItems = await db

@@ -1,8 +1,6 @@
 "use client";
 
 import { ThemeProvider } from "next-themes";
-import { AuthProvider } from "@/lib/auth-context";
-import { LiffProvider } from "@/lib/liff-provider";
 import Header from "@/components/Header";
 import { UIProvider } from "@/context/UIContext";
 import { CartProvider } from "@/context/CartContext";
@@ -37,18 +35,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <UIProvider>
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-        <LiffProvider>
-          <AuthProvider>
-            <CartProvider>
-              <React.Suspense fallback={null}>
-                <TableNumberCapture />
-              </React.Suspense>
-              <ConditionalHeader />
-              {children}
-              <ConditionalCartDrawer />
-            </CartProvider>
-          </AuthProvider>
-        </LiffProvider>
+        <CartProvider>
+          <React.Suspense fallback={null}>
+            <TableNumberCapture />
+          </React.Suspense>
+          <ConditionalHeader />
+          {children}
+          <ConditionalCartDrawer />
+        </CartProvider>
       </ThemeProvider>
     </UIProvider>
   );

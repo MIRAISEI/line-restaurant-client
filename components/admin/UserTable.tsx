@@ -2,22 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { getUsers, updateUser, deleteUser, type User, type UserRole } from "@/lib/admin-api";
-import { useAuth } from "@/lib/auth-context";
 import AddUserModal from "./AddUserModal";
 
 import { useTranslations } from "next-intl";
 
 export default function UserTable() {
   const t = useTranslations('Admin');
-  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
-  // Check if current user has admin or manager role
-  const canManageUsers = currentUser?.role === "admin" || currentUser?.role === "manager";
 
   useEffect(() => {
     async function fetchUsers() {
@@ -193,15 +188,13 @@ export default function UserTable() {
             </select>
           </div>
         </div>
-        {canManageUsers && (
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="px-6 py-3 bg-gradient-to-r from-[#06C755] to-[#00C300] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 touch-manipulation min-h-[48px] flex items-center justify-center gap-2"
-          >
-            <span>+</span>
-            <span>{t('addUser')}</span>
-          </button>
-        )}
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="px-6 py-3 bg-gradient-to-r from-[#06C755] to-[#00C300] text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 touch-manipulation min-h-[48px] flex items-center justify-center gap-2"
+        >
+          <span>+</span>
+          <span>{t('addUser')}</span>
+        </button>
       </div>
 
       {filteredUsers.length === 0 ? (
@@ -293,54 +286,37 @@ export default function UserTable() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {canManageUsers ? (
-                        <select
-                          value={user.role}
-                          onChange={(e) => handleRoleChange(user, e.target.value as UserRole)}
-                          className={`px-3 py-1.5 text-xs font-bold rounded-lg border-2 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#06C755]/20 cursor-pointer ${getRoleBadgeColor(user.role)}`}
-                        >
-                          <option value="customer">{t('roles.customer')}</option>
-                          <option value="staff">{t('roles.staff')}</option>
-                          <option value="manager">{t('roles.manager')}</option>
-                          <option value="admin">{t('roles.admin')}</option>
-                        </select>
-                      ) : (
-                        <span className={`px-3 py-1.5 text-xs font-bold rounded-lg border-2 ${getRoleBadgeColor(user.role)}`}>
-                          {t(`roles.${user.role}`)}
-                        </span>
-                      )}
+                      <select
+                        value={user.role}
+                        onChange={(e) => handleRoleChange(user, e.target.value as UserRole)}
+                        className={`px-3 py-1.5 text-xs font-bold rounded-lg border-2 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#06C755]/20 cursor-pointer ${getRoleBadgeColor(user.role)}`}
+                      >
+                        <option value="customer">{t('roles.customer')}</option>
+                        <option value="staff">{t('roles.staff')}</option>
+                        <option value="manager">{t('roles.manager')}</option>
+                        <option value="admin">{t('roles.admin')}</option>
+                      </select>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {canManageUsers ? (
+                      <button
+                        onClick={() => handleToggleStatus(user)}
+                        className={`px-3 py-1.5 text-xs font-bold rounded-full border-2 shadow-sm transition-all duration-200 active:scale-95 touch-manipulation ${user.isActive
+                          ? "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
+                          : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+                          }`}
+                      >
+                        {user.isActive ? t('active') : t('inactive')}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
                         <button
-                          onClick={() => handleToggleStatus(user)}
-                          className={`px-3 py-1.5 text-xs font-bold rounded-full border-2 shadow-sm transition-all duration-200 active:scale-95 touch-manipulation ${user.isActive
-                            ? "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
-                            : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-                            }`}
+                          onClick={() => handleDelete(user)}
+                          className="px-4 py-2 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-all duration-200 active:scale-95 touch-manipulation min-h-[40px] border border-red-200"
                         >
-                          {user.isActive ? t('active') : t('inactive')}
+                          {t('delete')}
                         </button>
-                      ) : (
-                        <span className={`px-3 py-1.5 text-xs font-bold rounded-full border-2 ${user.isActive
-                          ? "bg-green-100 text-green-700 border-green-300"
-                          : "bg-gray-100 text-gray-700 border-gray-300"
-                          }`}>
-                          {user.isActive ? t('active') : t('inactive')}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {canManageUsers && (
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleDelete(user)}
-                            className="px-4 py-2 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-all duration-200 active:scale-95 touch-manipulation min-h-[40px] border border-red-200"
-                          >
-                            {t('delete')}
-                          </button>
-                        </div>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))}

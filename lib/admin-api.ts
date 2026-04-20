@@ -187,181 +187,10 @@ export interface Category {
   updatedAt: string;
 }
 
-export interface AuthUser {
-  _id: string;
-  id: string;
-  userId: string;
-  displayName: string;
-  email?: string;
-  phone?: string;
-  pictureUrl?: string;
-  role: UserRole;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  lineUserId?: string;
-}
-
-export interface LoginResponse {
-  token: string;
-  user: AuthUser;
-}
-
-export interface LineLoginResponse {
-  loginUrl: string;
-  state: string;
-}
-
-// Authentication API functions
-export async function login(userId: string, password: string): Promise<LoginResponse> {
-  try {
-    // Validate inputs before sending
-    if (!userId || !password) {
-      throw new Error('User ID and password are required');
-    }
-
-    const requestBody = { userId: userId.trim(), password: password.trim() };
-
-    const response = await fetchWithTimeout(`${API_BASE_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    if (!response.ok) {
-      await handleApiError(response, 'Failed to login');
-    }
-
-    return response.json();
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Failed to login');
-  }
-}
-
-export async function verifyToken(token: string): Promise<{ valid: boolean; user: AuthUser }> {
-  try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/api/auth/verify`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      await handleApiError(response, 'Failed to verify token');
-    }
-
-    return response.json();
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Failed to verify token');
-  }
-}
-
-export async function setPassword(userId: string, password: string): Promise<void> {
-  try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/api/auth/set-password`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ userId, password }),
-    });
-
-    if (!response.ok) {
-      await handleApiError(response, 'Failed to set password');
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Failed to set password');
-  }
-}
-
-// LINE Login API functions
-export async function getLineLoginUrl(): Promise<LineLoginResponse> {
-  try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/api/auth/line/login`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      await handleApiError(response, 'Failed to get LINE login URL');
-    }
-
-    return response.json();
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Failed to get LINE login URL');
-  }
-}
-
-// LIFF Login API function
-export async function liffLogin(profile: { userId: string; displayName: string; pictureUrl?: string; tableNumber?: string }): Promise<LoginResponse> {
-  try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/api/auth/liff`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(profile),
-    });
-
-    if (!response.ok) {
-      await handleApiError(response, 'Failed to authenticate with LIFF');
-    }
-
-    return response.json();
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Failed to authenticate with LIFF');
-  }
-}
-
-
-// Helper function to get auth token from localStorage
-export function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('admin_token');
-}
-
-// Helper function to set auth token in localStorage
-export function setAuthToken(token: string): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem('admin_token', token);
-}
-
-// Helper function to remove auth token from localStorage
-export function removeAuthToken(): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem('admin_token');
-}
-
-// Helper function to get auth headers
 export function getAuthHeaders(): HeadersInit {
-  const token = getAuthToken();
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   };
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
   return headers;
 }
 
@@ -542,26 +371,6 @@ export async function updateTableRange(rangeStart: number, rangeEnd: number): Pr
   }
 }
 
-export async function validateTableForLineLogin(tableNumber: string): Promise<{ valid: boolean; tableNumber?: string }> {
-  try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tables/${encodeURIComponent(tableNumber)}/validate-login`, {
-      method: 'GET',
-      headers: getAuthHeaders(),
-    });
-
-    if (!response.ok) {
-      await handleApiError(response, 'Table is not available for login');
-    }
-
-    return response.json();
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Table is not available for login');
-  }
-}
-
 /**
  * Update payment status for an order (e.g. mark after-dining payments as paid).
  */
@@ -590,9 +399,10 @@ export async function updateOrderPaymentStatus(
 }
 
 // Menu API functions - Fetch from MongoDB via backend only
-export async function getMenuItems(): Promise<MenuItem[]> {
+export async function getMenuItems(includeInactive = false): Promise<MenuItem[]> {
   try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/api/menu`, {
+    const query = includeInactive ? "?includeInactive=true" : "";
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/menu${query}`, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
