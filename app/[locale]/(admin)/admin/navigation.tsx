@@ -89,6 +89,27 @@ export default function AdminNavigation() {
           Miraisei Admin
         </h1>
         <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-2 text-gray-500 hover:text-[#06C755] rounded-xl bg-white/70 hover:bg-gray-50 transition-all">
+                <Globe className="w-6 h-6" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-40 rounded-2xl shadow-xl border-gray-100">
+              <DropdownMenuItem onClick={() => switchLanguage('en')} className="font-medium p-3 rounded-xl gap-2 cursor-pointer">
+                <span>English</span>
+                {locale === 'en' && <Check className="w-4 h-4 text-[#06C755]" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => switchLanguage('ja')} className="font-medium p-3 rounded-xl gap-2 cursor-pointer">
+                <span>日本語</span>
+                {locale === 'ja' && <Check className="w-4 h-4 text-[#06C755]" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => switchLanguage('zh')} className="font-medium p-3 rounded-xl gap-2 cursor-pointer">
+                <span>中文</span>
+                {locale === 'zh' && <Check className="w-4 h-4 text-[#06C755]" />}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Link
             href="/admin/notifications"
             className="p-2 text-gray-500 hover:text-[#06C755] relative"
@@ -126,6 +147,35 @@ export default function AdminNavigation() {
               </Link>
             ))}
             <div className="pt-6 border-t border-gray-100 flex flex-col gap-4">
+              <div className="space-y-3">
+                <div className="text-sm font-bold text-gray-500 uppercase tracking-[0.2em]">
+                  {t('language') || 'Language'}
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="w-full rounded-2xl justify-between px-4 py-3 text-left text-gray-700 font-bold bg-white hover:bg-gray-50 border border-gray-200">
+                      <div className="flex items-center gap-2">
+                        <Globe className="w-4 h-4 text-[#06C755]" />
+                        <span>{locale === 'en' ? 'EN' : locale === 'ja' ? 'JP' : 'ZH'}</span>
+                      </div>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-full rounded-2xl shadow-xl border-gray-100">
+                    <DropdownMenuItem onClick={() => switchLanguage('en')} className="font-medium p-3 rounded-xl gap-2 cursor-pointer">
+                      <span>English</span>
+                      {locale === 'en' && <Check className="w-4 h-4 text-[#06C755]" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => switchLanguage('ja')} className="font-medium p-3 rounded-xl gap-2 cursor-pointer">
+                      <span>日本語</span>
+                      {locale === 'ja' && <Check className="w-4 h-4 text-[#06C755]" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => switchLanguage('zh')} className="font-medium p-3 rounded-xl gap-2 cursor-pointer">
+                      <span>中文</span>
+                      {locale === 'zh' && <Check className="w-4 h-4 text-[#06C755]" />}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <div className="flex items-center gap-4 p-4 rounded-2xl text-lg font-bold text-gray-500 bg-white/70">
                 <LogOut className="w-6 h-6" />
                 Guest mode
